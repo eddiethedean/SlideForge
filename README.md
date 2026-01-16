@@ -14,14 +14,16 @@ An open-source, extensible e-learning authoring tool that replicates the core wo
 
 The project is organized into four main components:
 
-- **Authoring.Core** – Pure C# domain model (slides, layers, triggers, variables)
-- **Authoring.Desktop** – Visual editor application (Avalonia-based)
-- **Authoring.Player** – Generated HTML/JS runtime
-- **Authoring.Export** – SCORM and HTML exporters
+- **Authoring.Core** – Pure C# domain model (slides, layers, triggers, variables) ✅
+- **Authoring.Desktop** – Visual editor application (Avalonia-based) 🚧
+- **Authoring.Player** – Generated HTML/JS runtime 📋
+- **Authoring.Export** – SCORM and HTML exporters 📋
+
+**Status Legend:** ✅ Complete | 🚧 In Progress | 📋 Planned
 
 ## Technology Stack
 
-- **Language**: C# (.NET 10.0)
+- **Language**: C# (.NET 9.0)
 - **Desktop UI**: Avalonia (cross-platform)
 - **Serialization**: JSON
 - **Runtime**: HTML, CSS, JavaScript
@@ -31,7 +33,7 @@ The project is organized into four main components:
 
 ### Prerequisites
 
-- .NET SDK 10.0 or later
+- .NET SDK 9.0 or later
 - An IDE (Visual Studio, Rider, or VS Code)
 
 ### Building the Solution
@@ -45,6 +47,16 @@ dotnet build
 ```bash
 dotnet run --project src/Authoring.Desktop/Authoring.Desktop.csproj
 ```
+
+### Running Tests
+
+```bash
+dotnet test
+```
+
+Test coverage is tracked and reported using Coverlet. Current coverage:
+- **Line Coverage**: 97.2%
+- **Branch Coverage**: 94.06%
 
 ## MVP Feature Set
 
@@ -66,6 +78,19 @@ Projects are stored as JSON files describing slides, objects, timelines, trigger
 ## License
 
 This project will be licensed under MIT or Apache 2.0 (to be determined).
+
+## Current Status
+
+**Phase 1 Complete ✅** - Core data model, JSON serialization, and validation are implemented with comprehensive test coverage.
+
+- ✅ Complete domain model (Project, Slide, Layer, SlideObject hierarchy, Variable, Trigger, Timeline, Actions)
+- ✅ JSON serialization with polymorphic type support
+- ✅ Comprehensive validation system
+- ✅ 85 unit tests with 97.2% line coverage
+
+**Next:** Phase 2 - Minimal Desktop Editor (MVP)
+
+See the [ROADMAP.md](ROADMAP.md) for detailed progress and upcoming milestones.
 
 ## Contributing
 
