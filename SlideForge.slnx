@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Authoring.Core/Authoring.Core.csproj" />
+    <Project Path="src/Authoring.Desktop/Authoring.Desktop.csproj" />
+    <Project Path="src/Authoring.Export/Authoring.Export.csproj" />
+    <Project Path="src/Authoring.Player/Authoring.Player.csproj" />
+  </Folder>
+</Solution>
