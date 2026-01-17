@@ -57,15 +57,19 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore dependencies
+        shell: bash
         run: dotnet restore
 
       - name: Build
+        shell: bash
         run: dotnet build --configuration Release --no-restore
 
       - name: Run tests
+        shell: bash
         run: dotnet test --configuration Release --no-build --verbosity normal
 
       - name: Publish application
+        shell: bash
         run: |
           dotnet publish src/Authoring.Desktop/Authoring.Desktop.csproj \
             --configuration Release \
