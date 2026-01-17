@@ -243,6 +243,6 @@ SlideForge is inspired by Articulate Storyline but built as an open-source alter
 
 ---
 
-**Current Version**: v0.5.5  
+**Current Version**: v0.5.6  
 **Status**: Phase 4 Complete - Runtime Player Implemented ✅  
 **Next**: Phase 5 - Export System

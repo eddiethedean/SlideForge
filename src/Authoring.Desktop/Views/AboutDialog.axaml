@@ -5,7 +5,7 @@
         Width="400" Height="300"
         WindowStartupLocation="CenterOwner">
     <StackPanel Margin="20" Spacing="10">
-        <TextBlock Text="SlideForge v0.5.5" FontSize="20" FontWeight="Bold" Foreground="Black"/>
+        <TextBlock Text="SlideForge v0.5.6" FontSize="20" FontWeight="Bold" Foreground="Black"/>
         <TextBlock Text="An open-source, extensible e-learning authoring tool." TextWrapping="Wrap" Foreground="Black"/>
         <TextBlock Text="Built with .NET 10.0 and Avalonia UI." TextWrapping="Wrap" Foreground="Black"/>
         <TextBlock Text="Phase 4: HTML/JavaScript Runtime Player - Complete ✅" TextWrapping="Wrap" Foreground="Black"/>
