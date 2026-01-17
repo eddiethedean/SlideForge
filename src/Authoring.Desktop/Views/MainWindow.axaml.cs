@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Authoring.Core.Models;
 using Authoring.Desktop.ViewModels;
 using Authoring.Desktop.Views.Controls;
 
@@ -75,6 +76,22 @@ public partial class MainWindow : Window
         if (DataContext is MainWindowViewModel vm)
         {
             vm.OnObjectPropertyChanged();
+        }
+    }
+
+    private async void OnEditTriggerClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button button && button.Tag is Trigger trigger && DataContext is MainWindowViewModel vm)
+        {
+            await vm.EditTriggerAsync(trigger);
+        }
+    }
+
+    private void OnDeleteTriggerClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button button && button.Tag is Trigger trigger && DataContext is MainWindowViewModel vm)
+        {
+            vm.DeleteTrigger(trigger);
         }
     }
 }

@@ -1,0 +1,14 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Authoring.Desktop.Views.AboutDialog"
+        Title="About SlideForge"
+        Width="400" Height="300"
+        WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="20" Spacing="10">
+        <TextBlock Text="SlideForge v0.4" FontSize="20" FontWeight="Bold" Foreground="Black"/>
+        <TextBlock Text="An open-source, extensible e-learning authoring tool." TextWrapping="Wrap" Foreground="Black"/>
+        <TextBlock Text="Built with .NET 10.0 and Avalonia UI." TextWrapping="Wrap" Foreground="Black"/>
+        <TextBlock Text="Phase 3: Triggers &amp; Variables System - Complete ✅" TextWrapping="Wrap" Foreground="Black"/>
+        <Button Content="OK" HorizontalAlignment="Center" Margin="0,20,0,0" Click="OnOkClick"/>
+    </StackPanel>
+</Window>

@@ -5,8 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Media;
 using Authoring.Core.Models;
+using Authoring.Core.Validation;
 using Authoring.Desktop.Models;
 using Authoring.Desktop.Services;
 using Authoring.Desktop.Views;
@@ -31,6 +35,9 @@ public partial class MainWindowViewModel : ViewModelBase
         _mainWindow = mainWindow;
         Slides = new ObservableCollection<Slide>();
         Layers = new ObservableCollection<Layer>();
+        Variables = new ObservableCollection<Variable>();
+        SelectedObjectTriggers = new ObservableCollection<Trigger>();
+        ValidationWarnings = new ObservableCollection<string>();
     }
 
     /// <summary>
@@ -55,7 +62,15 @@ public partial class MainWindowViewModel : ViewModelBase
                 DeleteLayerCommand.NotifyCanExecuteChanged();
                 ToggleObjectTimelineCommand.NotifyCanExecuteChanged();
                 DeleteSelectedObjectCommand.NotifyCanExecuteChanged();
+                AddVariableCommand.NotifyCanExecuteChanged();
+                EditVariableCommand.NotifyCanExecuteChanged();
+                DeleteVariableCommand.NotifyCanExecuteChanged();
+                AddTriggerCommand.NotifyCanExecuteChanged();
+                EditTriggerCommand.NotifyCanExecuteChanged();
+                DeleteTriggerCommand.NotifyCanExecuteChanged();
                 UpdateSlidesCollection();
+                UpdateVariablesCollection();
+                ValidateProject();
                 if (_currentProject?.Slides.Count > 0)
                 {
                     CurrentSlide = _currentProject.Slides[0];
@@ -97,6 +112,13 @@ public partial class MainWindowViewModel : ViewModelBase
                 OnPropertyChanged(nameof(SelectedTextObject));
                 OnPropertyChanged(nameof(SelectedImageObject));
                 OnPropertyChanged(nameof(SelectedButtonObject));
+                OnPropertyChanged(nameof(HasSelectedObject));
+                OnPropertyChanged(nameof(SelectedObjectHasTimeline));
+                OnPropertyChanged(nameof(SelectedObjectTimelineStartTime));
+                OnPropertyChanged(nameof(SelectedObjectTimelineDuration));
+                CutCommand.NotifyCanExecuteChanged();
+                CopyCommand.NotifyCanExecuteChanged();
+                UpdateSelectedObjectTriggers();
             }
         }
     }
@@ -170,6 +192,26 @@ public partial class MainWindowViewModel : ViewModelBase
     public ObservableCollection<Layer> Layers { get; }
 
     /// <summary>
+    /// Gets the collection of variables in the current project.
+    /// </summary>
+    public ObservableCollection<Variable> Variables { get; }
+
+    /// <summary>
+    /// Gets the collection of triggers for the selected object.
+    /// </summary>
+    public ObservableCollection<Trigger> SelectedObjectTriggers { get; }
+
+    /// <summary>
+    /// Gets the collection of validation warnings for the current project.
+    /// </summary>
+    public ObservableCollection<string> ValidationWarnings { get; }
+
+    /// <summary>
+    /// Gets whether there are validation warnings.
+    /// </summary>
+    public bool HasValidationWarnings => ValidationWarnings.Count > 0;
+
+    /// <summary>
     /// Gets the selected object as a TextObject, or null if not a TextObject.
     /// </summary>
     public TextObject? SelectedTextObject => SelectedObject as TextObject;
@@ -198,7 +240,7 @@ public partial class MainWindowViewModel : ViewModelBase
             if (result != null && dialog.ViewModel.IsValid)
             {
                 var project = _projectService.CreateNewProject(dialog.ViewModel.ProjectName, dialog.ViewModel.Author);
-                CurrentProject = project;
+                CurrentProject = project; // ValidateProject will be called in CurrentProject setter
                 ProjectFilePath = null;
                 IsModified = false;
             }
@@ -329,6 +371,7 @@ public partial class MainWindowViewModel : ViewModelBase
         
         CurrentProject.Slides.Remove(slideToDelete);
         UpdateSlidesCollection();
+        ValidateProject();
         
         CurrentSlide = nextSlide ?? CurrentProject.Slides.FirstOrDefault();
         MarkModified();
@@ -390,6 +433,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         CurrentSlide.Layers.Add(newLayer);
         UpdateLayersCollection();
+        ValidateProject();
         MarkModified();
     }
 
@@ -403,6 +447,72 @@ public partial class MainWindowViewModel : ViewModelBase
 
         CurrentSlide.Layers.Remove(layer);
         UpdateLayersCollection();
+        ValidateProject();
+        MarkModified();
+    }
+
+    [RelayCommand(CanExecute = nameof(HasProject))]
+    private async Task AddVariableAsync()
+    {
+        var dialog = new VariableDialog
+        {
+            DataContext = new VariableDialogViewModel()
+        };
+
+        if (_mainWindow != null)
+        {
+            var result = await dialog.ShowDialog<VariableDialogViewModel?>(_mainWindow);
+            if (result != null && result.IsValid && CurrentProject != null)
+            {
+                var variable = new Variable
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = result.Name,
+                    Type = result.Type,
+                    DefaultValue = result.DefaultValue
+                };
+
+                CurrentProject.AddVariable(variable);
+                UpdateVariablesCollection();
+                ValidateProject();
+                MarkModified();
+            }
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(HasProject))]
+    private async Task EditVariableAsync(object? parameter)
+    {
+        if (parameter is not Variable variable || CurrentProject == null) return;
+
+        var dialog = new VariableDialog
+        {
+            DataContext = new VariableDialogViewModel(variable)
+        };
+
+        if (_mainWindow != null)
+        {
+            var result = await dialog.ShowDialog<VariableDialogViewModel?>(_mainWindow);
+            if (result != null && result.IsValid)
+            {
+                variable.Name = result.Name;
+                variable.Type = result.Type;
+                variable.DefaultValue = result.DefaultValue;
+                UpdateVariablesCollection();
+                ValidateProject();
+                MarkModified();
+            }
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(HasProject))]
+    public void DeleteVariable(object? parameter)
+    {
+        if (parameter is not Variable variable || CurrentProject == null) return;
+
+        CurrentProject.Variables.Remove(variable);
+        UpdateVariablesCollection();
+        ValidateProject();
         MarkModified();
     }
 
@@ -422,6 +532,45 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// Gets whether the selected object has a timeline.
+    /// </summary>
+    public bool SelectedObjectHasTimeline => SelectedObject?.Timeline != null;
+
+    /// <summary>
+    /// Gets the selected object's timeline start time, or 0 if no timeline.
+    /// </summary>
+    public double SelectedObjectTimelineStartTime
+    {
+        get => SelectedObject?.Timeline?.StartTime ?? 0;
+        set
+        {
+            if (SelectedObject?.Timeline != null && SelectedObject.Timeline.StartTime != value)
+            {
+                SelectedObject.Timeline.StartTime = value;
+                OnPropertyChanged();
+                MarkModified();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gets the selected object's timeline duration, or 5.0 if no timeline.
+    /// </summary>
+    public double SelectedObjectTimelineDuration
+    {
+        get => SelectedObject?.Timeline?.Duration ?? 5.0;
+        set
+        {
+            if (SelectedObject?.Timeline != null && SelectedObject.Timeline.Duration != value)
+            {
+                SelectedObject.Timeline.Duration = value;
+                OnPropertyChanged();
+                MarkModified();
+            }
+        }
+    }
+
     [RelayCommand(CanExecute = nameof(HasProject))]
     private void ToggleObjectTimeline()
     {
@@ -436,7 +585,11 @@ public partial class MainWindowViewModel : ViewModelBase
             SelectedObject.Timeline = null;
         }
 
+        // Notify UI that timeline properties changed
         OnPropertyChanged(nameof(SelectedObject));
+        OnPropertyChanged(nameof(SelectedObjectHasTimeline));
+        OnPropertyChanged(nameof(SelectedObjectTimelineStartTime));
+        OnPropertyChanged(nameof(SelectedObjectTimelineDuration));
         MarkModified();
     }
 
@@ -509,11 +662,78 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             baseLayer.Objects.Remove(SelectedObject);
             SelectedObject = null;
+            ValidateProject();
             MarkModified();
         }
     }
 
-    private void UpdateSlidesCollection()
+    [RelayCommand(CanExecute = nameof(HasProject))]
+    public async Task AddTriggerAsync()
+    {
+        if (SelectedObject == null) return;
+
+        var dialog = new TriggerDialog
+        {
+            DataContext = new TriggerDialogViewModel(SelectedObject, CurrentProject, CurrentSlide)
+        };
+
+        if (_mainWindow != null)
+        {
+            var result = await dialog.ShowDialog<TriggerDialogViewModel?>(_mainWindow);
+            if (result != null && result.IsValid)
+            {
+                var trigger = new Trigger
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Type = result.TriggerType,
+                    Actions = result.Actions.ToList()
+                };
+
+                SelectedObject.Triggers.Add(trigger);
+                UpdateSelectedObjectTriggers();
+                ValidateProject();
+                MarkModified();
+            }
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(HasProject))]
+    public async Task EditTriggerAsync(object? parameter)
+    {
+        if (parameter is not Trigger trigger || SelectedObject == null) return;
+
+        var dialog = new TriggerDialog
+        {
+            DataContext = new TriggerDialogViewModel(SelectedObject, CurrentProject, CurrentSlide, trigger)
+        };
+
+        if (_mainWindow != null)
+        {
+            var result = await dialog.ShowDialog<TriggerDialogViewModel?>(_mainWindow);
+            if (result != null && result.IsValid)
+            {
+                trigger.Type = result.TriggerType;
+                trigger.Actions.Clear();
+                trigger.Actions.AddRange(result.Actions);
+                UpdateSelectedObjectTriggers();
+                ValidateProject();
+                MarkModified();
+            }
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(HasProject))]
+    public void DeleteTrigger(object? parameter)
+    {
+        if (parameter is not Trigger trigger || SelectedObject == null) return;
+
+        SelectedObject.Triggers.Remove(trigger);
+        UpdateSelectedObjectTriggers();
+        ValidateProject();
+        MarkModified();
+    }
+
+    public void UpdateSlidesCollection()
     {
         Slides.Clear();
         if (CurrentProject != null)
@@ -535,6 +755,45 @@ public partial class MainWindowViewModel : ViewModelBase
                 Layers.Add(layer);
             }
         }
+    }
+
+    public void UpdateVariablesCollection()
+    {
+        Variables.Clear();
+        if (CurrentProject != null)
+        {
+            foreach (var variable in CurrentProject.Variables)
+            {
+                Variables.Add(variable);
+            }
+        }
+    }
+
+    public void UpdateSelectedObjectTriggers()
+    {
+        SelectedObjectTriggers.Clear();
+        if (SelectedObject != null)
+        {
+            foreach (var trigger in SelectedObject.Triggers)
+            {
+                SelectedObjectTriggers.Add(trigger);
+            }
+        }
+        OnPropertyChanged(nameof(SelectedObjectTriggers));
+    }
+
+    public void ValidateProject()
+    {
+        ValidationWarnings.Clear();
+        if (CurrentProject != null)
+        {
+            var errors = ProjectValidator.ValidateProject(CurrentProject);
+            foreach (var error in errors)
+            {
+                ValidationWarnings.Add(error);
+            }
+        }
+        OnPropertyChanged(nameof(HasValidationWarnings));
     }
 
     private void MarkModified()
@@ -584,5 +843,153 @@ public partial class MainWindowViewModel : ViewModelBase
             },
             _ => null
         };
+    }
+
+    // Edit Menu Commands
+    public bool HasSelectedObject => SelectedObject != null;
+    public bool CanUndo => false; // TODO: Implement undo/redo in Phase 6
+    public bool CanRedo => false; // TODO: Implement undo/redo in Phase 6
+    public bool CanPaste => false; // TODO: Implement clipboard in Phase 6
+
+    [RelayCommand(CanExecute = nameof(CanUndo))]
+    private void Undo()
+    {
+        // TODO: Implement undo functionality in Phase 6
+    }
+
+    [RelayCommand(CanExecute = nameof(CanRedo))]
+    private void Redo()
+    {
+        // TODO: Implement redo functionality in Phase 6
+    }
+
+    [RelayCommand(CanExecute = nameof(HasSelectedObject))]
+    private void Cut()
+    {
+        if (SelectedObject == null) return;
+        // TODO: Implement clipboard in Phase 6
+        // For now, just delete the object
+        Copy();
+        DeleteSelectedObject();
+    }
+
+    [RelayCommand(CanExecute = nameof(HasSelectedObject))]
+    private void Copy()
+    {
+        if (SelectedObject == null) return;
+        // TODO: Implement clipboard in Phase 6
+    }
+
+    [RelayCommand(CanExecute = nameof(CanPaste))]
+    private void Paste()
+    {
+        // TODO: Implement clipboard in Phase 6
+    }
+
+    // View Menu Commands
+    [RelayCommand]
+    private void ZoomIn()
+    {
+        // TODO: Implement zoom in Phase 6
+    }
+
+    [RelayCommand]
+    private void ZoomOut()
+    {
+        // TODO: Implement zoom in Phase 6
+    }
+
+    [RelayCommand]
+    private void ZoomToFit()
+    {
+        // TODO: Implement zoom in Phase 6
+    }
+
+    [RelayCommand]
+    private void ZoomTo100()
+    {
+        // TODO: Implement zoom in Phase 6
+    }
+
+    // Help Menu Commands
+    [RelayCommand]
+    private async Task AboutAsync()
+    {
+        if (_mainWindow == null) return;
+
+        var dialog = new AboutDialog();
+        await dialog.ShowDialog(_mainWindow);
+    }
+
+    [RelayCommand]
+    private async Task DocumentationAsync()
+    {
+        if (_mainWindow == null) return;
+
+        // Simple documentation window
+        var docWindow = new Window
+        {
+            Title = "Documentation",
+            Width = 500,
+            Height = 300,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner
+        };
+
+        var content = new StackPanel { Margin = new Thickness(20), Spacing = 10 };
+        content.Children.Add(new TextBlock { Text = "Documentation", FontWeight = FontWeight.Bold, Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "Documentation is available in the repository:", Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "• README.md - Getting started guide", Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "• ROADMAP.md - Development roadmap", Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "• tests/TESTING.md - Testing guidelines", Foreground = Brushes.Black });
+        
+        var okButton = new Button { Content = "OK", HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 20, 0, 0) };
+        okButton.Click += (s, e) => docWindow.Close();
+        content.Children.Add(okButton);
+        
+        docWindow.Content = content;
+        await docWindow.ShowDialog(_mainWindow);
+    }
+
+    [RelayCommand]
+    private async Task KeyboardShortcutsAsync()
+    {
+        if (_mainWindow == null) return;
+
+        var shortcutsWindow = new Window
+        {
+            Title = "Keyboard Shortcuts",
+            Width = 500,
+            Height = 450,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner
+        };
+
+        var scrollViewer = new ScrollViewer();
+        var content = new StackPanel { Margin = new Thickness(20), Spacing = 8 };
+        
+        content.Children.Add(new TextBlock { Text = "Keyboard Shortcuts:", FontWeight = FontWeight.Bold, FontSize = 16, Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "Edit:", FontWeight = FontWeight.Bold, Margin = new Thickness(0, 10, 0, 0), Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "  Ctrl+Z     - Undo (Coming in Phase 6)", Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "  Ctrl+Y     - Redo (Coming in Phase 6)", Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "  Ctrl+X     - Cut", Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "  Ctrl+C     - Copy", Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "  Ctrl+V     - Paste (Coming in Phase 6)", Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "  Delete     - Delete Selected Object", Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "View:", FontWeight = FontWeight.Bold, Margin = new Thickness(0, 10, 0, 0), Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "  Ctrl++     - Zoom In (Coming in Phase 6)", Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "  Ctrl+-     - Zoom Out (Coming in Phase 6)", Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "  Ctrl+0     - Zoom to Fit (Coming in Phase 6)", Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "File:", FontWeight = FontWeight.Bold, Margin = new Thickness(0, 10, 0, 0), Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "  Ctrl+N     - New Project", Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "  Ctrl+O     - Open Project", Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "  Ctrl+S     - Save Project", Foreground = Brushes.Black });
+        content.Children.Add(new TextBlock { Text = "  Ctrl+Shift+S - Save As", Foreground = Brushes.Black });
+        
+        var okButton = new Button { Content = "OK", HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 20, 0, 0) };
+        okButton.Click += (s, e) => shortcutsWindow.Close();
+        content.Children.Add(okButton);
+        
+        scrollViewer.Content = content;
+        shortcutsWindow.Content = scrollViewer;
+        await shortcutsWindow.ShowDialog(_mainWindow);
     }
 }

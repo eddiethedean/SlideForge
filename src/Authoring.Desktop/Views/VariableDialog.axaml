@@ -1,0 +1,41 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Authoring.Desktop.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="250"
+        x:Class="Authoring.Desktop.Views.VariableDialog"
+        x:DataType="vm:VariableDialogViewModel"
+        Title="Variable"
+        Width="400" Height="250"
+        WindowStartupLocation="CenterOwner">
+
+    <Design.DataContext>
+        <vm:VariableDialogViewModel/>
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" ColumnDefinitions="Auto,*" Margin="15" RowSpacing="10" ColumnSpacing="10">
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" VerticalAlignment="Center" Foreground="Black"/>
+        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name}" Watermark="Enter variable name"/>
+        
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Type:" VerticalAlignment="Center" Foreground="Black"/>
+        <ComboBox Grid.Row="1" Grid.Column="1" SelectedItem="{Binding Type}" ItemsSource="{Binding VariableTypes}"/>
+        
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Default Value:" VerticalAlignment="Center" Foreground="Black"/>
+        <StackPanel Grid.Row="2" Grid.Column="1">
+            <!-- Boolean -->
+            <CheckBox IsChecked="{Binding BooleanValue}" IsVisible="{Binding IsBooleanType}" Content="True"/>
+            
+            <!-- Number -->
+            <NumericUpDown Value="{Binding NumberValue}" IsVisible="{Binding IsNumberType}" Minimum="double.MinValue" Maximum="double.MaxValue"/>
+            
+            <!-- String -->
+            <TextBox Text="{Binding StringValue}" IsVisible="{Binding IsStringType}" Watermark="Enter default value"/>
+        </StackPanel>
+        
+        <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,10,0,0">
+            <Button Content="OK" Command="{Binding OkCommand}" IsDefault="True" Width="75" IsEnabled="{Binding IsValid}"/>
+            <Button Content="Cancel" Command="{Binding CancelCommand}" IsCancel="True" Width="75"/>
+        </StackPanel>
+    </Grid>
+</Window>

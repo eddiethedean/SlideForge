@@ -17,6 +17,7 @@
         <conv:InverseBoolConverter x:Key="InverseBool"/>
         <conv:NotNullToBoolConverter x:Key="NotNullToBool"/>
         <conv:SlideObjectTypeConverter x:Key="SlideObjectType"/>
+        <conv:TriggerTypeConverter x:Key="TriggerTypeConverter"/>
     </Window.Resources>
 
     <Design.DataContext>
@@ -34,19 +35,34 @@
                 <MenuItem Header="Save _As..." Command="{Binding SaveAsProjectCommand}"/>
             </MenuItem>
             <MenuItem Header="_Edit">
-                <!-- Placeholder for future edit commands -->
+                <MenuItem Header="_Undo" InputGesture="Ctrl+Z" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}"/>
+                <MenuItem Header="_Redo" InputGesture="Ctrl+Y" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}"/>
+                <Separator/>
+                <MenuItem Header="Cu_t" InputGesture="Ctrl+X" Command="{Binding CutCommand}" IsEnabled="{Binding HasSelectedObject}"/>
+                <MenuItem Header="_Copy" InputGesture="Ctrl+C" Command="{Binding CopyCommand}" IsEnabled="{Binding HasSelectedObject}"/>
+                <MenuItem Header="_Paste" InputGesture="Ctrl+V" Command="{Binding PasteCommand}" IsEnabled="{Binding CanPaste}"/>
+                <Separator/>
+                <MenuItem Header="_Delete" InputGesture="Delete" Command="{Binding DeleteSelectedObjectCommand}" IsEnabled="{Binding HasSelectedObject}"/>
             </MenuItem>
             <MenuItem Header="_View">
-                <!-- Placeholder for future view commands -->
+                <MenuItem Header="_Zoom In" InputGesture="Ctrl++" Command="{Binding ZoomInCommand}"/>
+                <MenuItem Header="Zoom _Out" InputGesture="Ctrl+-" Command="{Binding ZoomOutCommand}"/>
+                <MenuItem Header="Zoom to _Fit" InputGesture="Ctrl+0" Command="{Binding ZoomToFitCommand}"/>
+                <MenuItem Header="Zoom to _100%" Command="{Binding ZoomTo100Command}"/>
             </MenuItem>
             <MenuItem Header="_Help">
-                <!-- Placeholder for future help commands -->
+                <MenuItem Header="_About SlideForge" Command="{Binding AboutCommand}"/>
+                <Separator/>
+                <MenuItem Header="_Documentation" Command="{Binding DocumentationCommand}"/>
+                <MenuItem Header="_Keyboard Shortcuts" Command="{Binding KeyboardShortcutsCommand}"/>
             </MenuItem>
         </Menu>
 
         <!-- Toolbar -->
         <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" BorderBrush="LightGray" BorderThickness="0,0,0,1" Background="#F0F0F0">
             <StackPanel Orientation="Horizontal" Margin="5" Spacing="5">
+                <Button Content="➕ Add Slide" Command="{Binding AddSlideCommand}" MinWidth="100" Foreground="Black" FontWeight="SemiBold"/>
+                <Border Width="1" Background="LightGray" Margin="5,0"/>
                 <TextBlock Text="Tools:" VerticalAlignment="Center" Margin="5,0" Foreground="Black"/>
                 <Button Content="Text" Command="{Binding SelectToolCommand}" CommandParameter="Text" MinWidth="60" Foreground="Black"/>
                 <Button Content="Image" Command="{Binding SelectToolCommand}" CommandParameter="Image" MinWidth="60" Foreground="Black"/>
@@ -54,8 +70,8 @@
             </StackPanel>
         </Border>
 
-        <!-- Left Panel: Slide List and Layers -->
-        <Grid Grid.Row="2" Grid.Column="0" RowDefinitions="*,*">
+        <!-- Left Panel: Slide List, Layers, and Variables -->
+        <Grid Grid.Row="2" Grid.Column="0" RowDefinitions="*,*,*">
             <!-- Slide List -->
             <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="0,0,1,1" Background="White">
                 <Grid RowDefinitions="Auto,*,Auto">
@@ -68,14 +84,14 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
                     <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="5" Spacing="5">
-                        <Button Content="Add" Command="{Binding AddSlideCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-                        <Button Content="Delete" Command="{Binding DeleteSlideCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                        <Button Content="Add" Command="{Binding AddSlideCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Foreground="Black"/>
+                        <Button Content="Delete" Command="{Binding DeleteSlideCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Foreground="Black"/>
                     </StackPanel>
                 </Grid>
             </Border>
             
             <!-- Layer Panel -->
-            <Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="0,0,1,0" Background="White">
+            <Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="0,0,1,1" Background="White">
                 <Grid RowDefinitions="Auto,*,Auto">
                     <TextBlock Grid.Row="0" Text="Layers" FontWeight="Bold" Margin="10,10,10,5" Foreground="Black"/>
                     <ListBox x:Name="LayerList" Grid.Row="1" ItemsSource="{Binding Layers}">
@@ -89,8 +105,32 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
                     <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="5" Spacing="5">
-                        <Button Content="Add" Command="{Binding AddLayerCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-                        <Button Content="Delete" Command="{Binding DeleteLayerCommand}" CommandParameter="{Binding #LayerList.SelectedItem}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                        <Button Content="Add" Command="{Binding AddLayerCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Foreground="Black"/>
+                        <Button Content="Delete" Command="{Binding DeleteLayerCommand}" CommandParameter="{Binding #LayerList.SelectedItem}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Foreground="Black"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Variables Panel -->
+            <Border Grid.Row="2" BorderBrush="LightGray" BorderThickness="0,0,1,0" Background="White">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <TextBlock Grid.Row="0" Text="Variables" FontWeight="Bold" Margin="10,10,10,5" Foreground="Black"/>
+                    <ListBox x:Name="VariableList" Grid.Row="1" ItemsSource="{Binding Variables}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="5,2">
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Foreground="Black" Margin="0,0,5,0"/>
+                                    <TextBlock Text="(" VerticalAlignment="Center" Foreground="#666666"/>
+                                    <TextBlock Text="{Binding Type}" VerticalAlignment="Center" Foreground="#666666"/>
+                                    <TextBlock Text=")" VerticalAlignment="Center" Foreground="#666666"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="5" Spacing="5">
+                        <Button Content="Add" Command="{Binding AddVariableCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Foreground="Black"/>
+                        <Button Content="Edit" Command="{Binding EditVariableCommand}" CommandParameter="{Binding #VariableList.SelectedItem}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Foreground="Black"/>
+                        <Button Content="Delete" Command="{Binding DeleteVariableCommand}" CommandParameter="{Binding #VariableList.SelectedItem}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Foreground="Black"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -167,9 +207,47 @@
                             <TextBlock Text="Source Path:" Foreground="Black"/>
                             <Grid ColumnDefinitions="*,Auto">
                                 <TextBox Grid.Column="0" Text="{Binding SelectedImageObject.SourcePath, Mode=TwoWay}" Margin="0,0,5,0"/>
-                                <Button Grid.Column="1" Content="Browse..." Click="OnBrowseImageClick"/>
+                                <Button Grid.Column="1" Content="Browse..." Click="OnBrowseImageClick" Foreground="Black"/>
                             </Grid>
                             <CheckBox Content="Maintain Aspect Ratio" IsChecked="{Binding SelectedImageObject.MaintainAspectRatio, Mode=TwoWay}" Foreground="Black"/>
+                        </StackPanel>
+
+                        <!-- Triggers Section -->
+                        <StackPanel Spacing="5" Margin="0,10,0,0">
+                            <Separator/>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0" Text="Triggers" FontWeight="SemiBold" Foreground="Black"/>
+                                <Button Grid.Column="1" Content="Add" Command="{Binding AddTriggerCommand}" HorizontalAlignment="Right" Padding="10,0" Foreground="Black"/>
+                            </Grid>
+                            <ListBox x:Name="TriggerListBox" ItemsSource="{Binding SelectedObjectTriggers}" MaxHeight="200">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid ColumnDefinitions="*,Auto,Auto" Margin="5,2">
+                                            <StackPanel Grid.Column="0" Orientation="Vertical">
+                                                <TextBlock Text="{Binding Type, Converter={StaticResource TriggerTypeConverter}}" Foreground="Black" FontWeight="SemiBold"/>
+                                                <TextBlock Foreground="#666666" FontSize="11">
+                                                    <TextBlock.Text>
+                                                        <MultiBinding StringFormat="{}{0} action(s)">
+                                                            <Binding Path="Actions.Count"/>
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                            </StackPanel>
+                                            <Button Grid.Column="1" Content="Edit" Margin="5,0" Padding="10,0" Click="OnEditTriggerClick" Foreground="Black">
+                                                <Button.Tag>
+                                                    <Binding/>
+                                                </Button.Tag>
+                                            </Button>
+                                            <Button Grid.Column="2" Content="Delete" Margin="5,0" Padding="10,0" Click="OnDeleteTriggerClick" Foreground="Black">
+                                                <Button.Tag>
+                                                    <Binding/>
+                                                </Button.Tag>
+                                            </Button>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <TextBlock Text="No triggers" IsVisible="{Binding SelectedObjectTriggers.Count, Converter={StaticResource InverseBool}}" Foreground="#666666" Margin="5,10"/>
                         </StackPanel>
                     </StackPanel>
 
@@ -180,25 +258,52 @@
         </Border>
 
         <!-- Bottom: Timeline Panel -->
-        <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" BorderBrush="LightGray" BorderThickness="0,1,0,0" Height="150" Background="#F0F0F0">
-            <Grid Margin="10" RowDefinitions="Auto,*">
-                <TextBlock Grid.Row="0" Text="Timeline" FontWeight="Bold" Foreground="Black"/>
-                <StackPanel Grid.Row="1" Spacing="5" Margin="0,10,0,0">
-                    <StackPanel IsVisible="{Binding SelectedObject, Converter={StaticResource NotNullToBool}}" Spacing="5">
-                        <TextBlock Text="Object Timeline" FontWeight="SemiBold" Foreground="Black"/>
-                        <Grid ColumnDefinitions="Auto,*,Auto,*" ColumnSpacing="10">
-                            <TextBlock Grid.Column="0" Text="Start Time:" VerticalAlignment="Center" Foreground="Black"/>
-                            <NumericUpDown Grid.Column="1" Value="{Binding SelectedObject.Timeline.StartTime, Mode=TwoWay}" Minimum="0" IsEnabled="{Binding SelectedObject.Timeline, Converter={StaticResource NotNullToBool}}"/>
-                            <TextBlock Grid.Column="2" Text="Duration:" VerticalAlignment="Center" Foreground="Black"/>
-                            <NumericUpDown Grid.Column="3" Value="{Binding SelectedObject.Timeline.Duration, Mode=TwoWay}" Minimum="0.1" IsEnabled="{Binding SelectedObject.Timeline, Converter={StaticResource NotNullToBool}}"/>
-                        </Grid>
-                        <Button Content="Toggle Timeline" 
-                                Command="{Binding ToggleObjectTimelineCommand}" 
-                                HorizontalAlignment="Left"/>
+        <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" RowDefinitions="Auto,*">
+            <!-- Validation Warnings Bar -->
+            <Border Grid.Row="0" BorderBrush="#FFA500" BorderThickness="0,0,0,1" Background="#FFF4E6" IsVisible="{Binding HasValidationWarnings}" Padding="10,5">
+                <Grid ColumnDefinitions="Auto,*">
+                    <TextBlock Grid.Column="0" Text="{Binding ValidationWarnings.Count, StringFormat='⚠ {0} warning(s):'}" FontWeight="Bold" Foreground="#CC6600" Margin="0,0,10,0"/>
+                    <ScrollViewer Grid.Column="1" MaxHeight="60" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding ValidationWarnings}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" TextWrapping="Wrap" Foreground="#333333" Margin="0,2"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+            
+            <!-- Timeline Panel -->
+            <Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="0,0,0,0" Height="150" Background="#F0F0F0">
+                <Grid Margin="10" RowDefinitions="Auto,*">
+                    <TextBlock Grid.Row="0" Text="Timeline" FontWeight="Bold" Foreground="Black"/>
+                    <StackPanel Grid.Row="1" Spacing="5" Margin="0,10,0,0">
+                        <StackPanel IsVisible="{Binding SelectedObject, Converter={StaticResource NotNullToBool}}" Spacing="5">
+                            <TextBlock Text="Object Timeline" FontWeight="SemiBold" Foreground="Black"/>
+                            <TextBlock Text="Timeline: Disabled" IsVisible="{Binding SelectedObjectHasTimeline, Converter={StaticResource InverseBool}}" Foreground="#666666" FontStyle="Italic" Margin="0,0,0,5"/>
+                            <Grid ColumnDefinitions="Auto,*,Auto,*" ColumnSpacing="10" IsVisible="{Binding SelectedObjectHasTimeline}">
+                                <TextBlock Grid.Column="0" Text="Start Time:" VerticalAlignment="Center" Foreground="Black"/>
+                                <NumericUpDown Grid.Column="1" Value="{Binding SelectedObjectTimelineStartTime, Mode=TwoWay}" Minimum="0"/>
+                                <TextBlock Grid.Column="2" Text="Duration:" VerticalAlignment="Center" Foreground="Black"/>
+                                <NumericUpDown Grid.Column="3" Value="{Binding SelectedObjectTimelineDuration, Mode=TwoWay}" Minimum="0.1"/>
+                            </Grid>
+                            <StackPanel Orientation="Horizontal" Spacing="5" Margin="0,5,0,0">
+                                <Button Content="Enable Timeline" 
+                                        Command="{Binding ToggleObjectTimelineCommand}" 
+                                        IsVisible="{Binding SelectedObjectHasTimeline, Converter={StaticResource InverseBool}}"
+                                        Foreground="Black"/>
+                                <Button Content="Disable Timeline" 
+                                        Command="{Binding ToggleObjectTimelineCommand}" 
+                                        IsVisible="{Binding SelectedObjectHasTimeline}"
+                                        Foreground="Black"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <TextBlock Text="Select an object to edit timeline" IsVisible="{Binding SelectedObject, Converter={StaticResource NotNullToBool}, ConverterParameter=inverse}" Foreground="#333333"/>
                     </StackPanel>
-                    <TextBlock Text="Select an object to edit timeline" IsVisible="{Binding SelectedObject, Converter={StaticResource NotNullToBool}, ConverterParameter=inverse}" Foreground="#333333"/>
-                </StackPanel>
-            </Grid>
-        </Border>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </Window>

@@ -1,0 +1,57 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Authoring.Desktop.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="300"
+        x:Class="Authoring.Desktop.Views.ActionDialog"
+        x:DataType="vm:ActionDialogViewModel"
+        Title="Action"
+        Width="400" Height="300"
+        WindowStartupLocation="CenterOwner">
+
+    <Design.DataContext>
+        <vm:ActionDialogViewModel/>
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="Auto,*" Margin="15" RowSpacing="10" ColumnSpacing="10">
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Action Type:" VerticalAlignment="Center" Foreground="Black"/>
+        <ComboBox Grid.Row="0" Grid.Column="1" SelectedItem="{Binding SelectedActionType}" ItemsSource="{Binding ActionTypes}"/>
+
+        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="10" Margin="0,10,0,0">
+            <!-- NavigateToSlide Action -->
+            <StackPanel IsVisible="{Binding IsNavigateToSlide}" Spacing="5">
+                <TextBlock Text="Target Slide:" Foreground="Black"/>
+                <ComboBox SelectedItem="{Binding SelectedSlide}" ItemsSource="{Binding AvailableSlides}" DisplayMemberBinding="{Binding Title}"/>
+            </StackPanel>
+
+            <!-- SetVariable Action -->
+            <StackPanel IsVisible="{Binding IsSetVariable}" Spacing="5">
+                <TextBlock Text="Variable:" Foreground="Black"/>
+                <ComboBox SelectedItem="{Binding SelectedVariable}" ItemsSource="{Binding AvailableVariables}" DisplayMemberBinding="{Binding Name}"/>
+                <TextBlock Text="Value:" Foreground="Black" Margin="0,5,0,0"/>
+                <StackPanel>
+                    <!-- Boolean value -->
+                    <CheckBox IsChecked="{Binding BooleanValue}" IsVisible="{Binding IsBooleanVariable}" Content="True"/>
+                    
+                    <!-- Number value -->
+                    <NumericUpDown Value="{Binding NumberValue}" IsVisible="{Binding IsNumberVariable}" Minimum="double.MinValue" Maximum="double.MaxValue"/>
+                    
+                    <!-- String value -->
+                    <TextBox Text="{Binding StringValue}" IsVisible="{Binding IsStringVariable}" Watermark="Enter value"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- ShowLayer/HideLayer Action -->
+            <StackPanel IsVisible="{Binding IsShowHideLayer}" Spacing="5">
+                <TextBlock Text="Layer:" Foreground="Black"/>
+                <ComboBox SelectedItem="{Binding SelectedLayer}" ItemsSource="{Binding AvailableLayers}" DisplayMemberBinding="{Binding Name}"/>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,10,0,0">
+            <Button Content="OK" Command="{Binding OkCommand}" IsDefault="True" Width="75" IsEnabled="{Binding IsValid}"/>
+            <Button Content="Cancel" Command="{Binding CancelCommand}" IsCancel="True" Width="75"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -15,7 +15,7 @@ An open-source, extensible e-learning authoring tool that replicates the core wo
 The project is organized into four main components:
 
 - **Authoring.Core** – Pure C# domain model (slides, layers, triggers, variables) ✅
-- **Authoring.Desktop** – Visual editor application (Avalonia-based) ✅ (MVP)
+- **Authoring.Desktop** – Visual editor application (Avalonia-based) ✅ (MVP with Triggers & Variables UI)
 - **Authoring.Player** – Generated HTML/JS runtime 📋
 - **Authoring.Export** – SCORM and HTML exporters 📋
 
@@ -23,7 +23,7 @@ The project is organized into four main components:
 
 ## Technology Stack
 
-- **Language**: C# (.NET 9.0)
+- **Language**: C# (.NET 10.0)
 - **Desktop UI**: Avalonia (cross-platform)
 - **Serialization**: JSON
 - **Runtime**: HTML, CSS, JavaScript
@@ -33,7 +33,7 @@ The project is organized into four main components:
 
 ### Prerequisites
 
-- .NET SDK 9.0 or later
+- .NET SDK 10.0 or later
 - An IDE (Visual Studio, Rider, or VS Code)
 
 ### Building the Solution
@@ -65,19 +65,23 @@ dotnet test --filter "Category=UI"
 Test coverage is tracked and reported using Coverlet. Current coverage:
 - **Line Coverage**: 97.2%+
 - **Branch Coverage**: 94%+
-- **Total Tests**: 152+ across 34 test files
+- **Total Tests**: 354+ across 40+ test files
 - **Test Categories**: Unit, Integration, UI, Property-Based, Performance
 
 See [TESTING.md](tests/TESTING.md) for comprehensive testing guidelines and best practices.
 
 ## MVP Feature Set
 
-- Slide-based project structure
+- Slide-based project structure with easy slide management (toolbar, menu, panel)
 - Objects: text, images, buttons
 - Simple timeline (start time + duration)
-- Triggers: on click, on timeline start
-- Variables: boolean, number, string
-- Slide navigation actions
+- Variables management UI (create, edit, delete boolean/number/string variables)
+- Triggers editor UI (add triggers to objects with on click/on timeline start)
+- Actions builder (navigate to slide, set variable, show/hide layer)
+- Validation warnings for broken references
+- Real-time validation feedback
+- Menu system with Edit, View, and Help menus
+- Keyboard shortcuts support (with shortcuts reference dialog)
 
 ## Data Model
 
@@ -98,20 +102,33 @@ This project will be licensed under MIT or Apache 2.0 (to be determined).
 - ✅ Complete domain model (Project, Slide, Layer, SlideObject hierarchy, Variable, Trigger, Timeline, Actions)
 - ✅ JSON serialization with polymorphic type support
 - ✅ Comprehensive validation system
-- ✅ 152+ tests across 34 test files with extensive coverage
+- ✅ 125+ core tests with extensive coverage (97%+ line coverage, 94%+ branch coverage)
 
 **Phase 2 Complete ✅** - Minimal Desktop Editor (MVP) is implemented and functional.
 
 - ✅ Project management (New, Open, Save, Save As)
-- ✅ Slide management (Add, Delete, Duplicate)
+- ✅ Slide management (Add via toolbar/menu/panel, Delete, Duplicate)
 - ✅ Layer management (Add, Delete, Show/Hide)
 - ✅ Canvas-based visual editing
 - ✅ Object creation and editing (Text, Image, Button)
 - ✅ Property panels for slide and object configuration
 - ✅ Basic timeline support
+- ✅ Menu system (File, Edit, View, Help)
 - ✅ Comprehensive test suite for desktop components
 
-**Next:** Phase 3 - Triggers & Variables System UI
+**Phase 3 Complete ✅** - Triggers & Variables System UI is fully implemented.
+
+- ✅ Variables panel UI with full CRUD operations
+- ✅ Variable dialog for creating/editing variables (Boolean, Number, String types)
+- ✅ Triggers section in Properties panel
+- ✅ Trigger dialog for adding/editing triggers (OnClick, OnTimelineStart)
+- ✅ Action dialog for configuring actions (NavigateToSlide, SetVariable, ShowLayer, HideLayer)
+- ✅ Real-time validation warnings display
+- ✅ Reference validation (variables, slides, layers)
+- ✅ 104+ robust tests covering edge cases, validation, and complex workflows
+- ✅ 354+ total tests (125 Core + 229 Desktop) across 40+ test files
+
+**Next:** Phase 4 - HTML/JavaScript Runtime Player
 
 See the [ROADMAP.md](ROADMAP.md) for detailed progress and upcoming milestones.
 

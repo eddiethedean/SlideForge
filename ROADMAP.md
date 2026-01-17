@@ -2,10 +2,11 @@
 
 This document outlines the development phases and milestones for SlideForge, an open-source e-learning authoring tool.
 
-## Current Status: Phase 2 Complete ✅
+## Current Status: Phase 3 Complete ✅
 
 **Phase 1: Core Data Model & JSON Schema** - ✅ **COMPLETE**
 **Phase 2: Minimal Desktop Editor (MVP)** - ✅ **COMPLETE**
+**Phase 3: Triggers & Variables System** - ✅ **COMPLETE**
 
 ### ✅ Completed Work
 
@@ -15,7 +16,7 @@ This document outlines the development phases and milestones for SlideForge, an 
 - ✅ Complete domain model implementation
 - ✅ JSON serialization with polymorphic type support
 - ✅ Comprehensive validation system
-- ✅ Comprehensive test suite (152+ tests across 34 files, 97%+ line coverage)
+- ✅ Comprehensive test suite (354+ tests across 40+ files, 97%+ line coverage)
 - ✅ Desktop editor UI with full MVP feature set
 - ✅ Property-based testing infrastructure (FsCheck)
 - ✅ Performance testing infrastructure (BenchmarkDotNet)
@@ -55,7 +56,7 @@ This document outlines the development phases and milestones for SlideForge, an 
 - ✅ Validation tests covering all rules and edge cases
 
 ### Testing ✅
-- ✅ 152+ comprehensive tests across 34 test files
+- ✅ 125+ comprehensive core tests
 - ✅ 97%+ line coverage, 94%+ branch coverage
 - ✅ Tests for models, serialization, validation, and integration scenarios
 - ✅ Property-based testing (FsCheck.Xunit) for invariants
@@ -78,13 +79,16 @@ This document outlines the development phases and milestones for SlideForge, an 
 - ✅ New project dialog
 - ✅ Open/Save project file dialogs
 - ✅ Project file service (IProjectService implementation)
+- ✅ Menu bar with File, Edit, View, and Help menus
+- ✅ Help dialogs (About, Documentation, Keyboard Shortcuts)
 - ⏳ Project settings panel (deferred to Phase 6)
 - ⏳ Recent projects list (deferred to Phase 6)
 
 ### 2.2 Slide Management ✅
 - ✅ Slide list/navigation panel
-- ✅ Add/delete/duplicate slides
+- ✅ Add/delete/duplicate slides (accessible via toolbar, Edit menu, and panel)
 - ✅ Slide properties panel (title, dimensions)
+- ✅ Prominent "Add Slide" button in toolbar
 
 ### 2.3 Canvas View ✅
 - ✅ Canvas control for slide editing (SlideCanvas)
@@ -114,50 +118,67 @@ This document outlines the development phases and milestones for SlideForge, an 
 - ⏳ Visual timeline markers (deferred to Phase 3)
 
 ### Testing ✅
-- ✅ 67+ desktop tests (ViewModels, Services, Controls, Converters)
+- ✅ 229+ desktop tests (ViewModels, Services, Controls, Converters)
 - ✅ Integration tests for project lifecycle
 - ✅ UI tests using Avalonia.Headless
 - ✅ Edge case testing
+- ✅ Robust test suites for triggers, variables, and actions
+- ✅ Menu commands tests (36 tests for Edit, View, Help menus)
+- ✅ Dialog tests (5 tests for About and Help dialogs)
 
 **Acceptance Criteria Met**: ✅ Users can create a project, add slides, place text/images/buttons, adjust their properties, and save the project as JSON.
 
 ---
 
-## Phase 3: Triggers & Variables System 🚧
+## Phase 3: Triggers & Variables System ✅
 
 **Goal**: Implement the trigger-based interaction model.
 
-**Status**: 🚧 **NEXT** - Ready to begin
+**Status**: ✅ **COMPLETE**
 
-### 3.1 Variables Management
-- [ ] Variables panel UI
-- [ ] Create/edit/delete variables (boolean, number, string)
-- [ ] Variable value initialization
-- [ ] Variable list display
+### 3.1 Variables Management ✅
+- ✅ Variables panel UI (left sidebar)
+- ✅ Create/edit/delete variables (boolean, number, string)
+- ✅ Variable dialog with type-specific default value inputs
+- ✅ Variable list display with type indicators
+- ✅ Variable collection synchronization with project changes
 
-### 3.2 Trigger Editor
-- [ ] Trigger panel/list for selected object
-- [ ] Add trigger dialog
-- [ ] Trigger condition builder
-  - [ ] On click (for buttons/objects)
-  - [ ] On timeline start (for slides/objects)
-- [ ] Action builder
-  - [ ] Navigate to slide
-  - [ ] Set variable
-  - [ ] Show/hide layer
-  - [ ] Jump to timeline point
+### 3.2 Trigger Editor ✅
+- ✅ Trigger panel/list for selected object (in Properties panel)
+- ✅ Add/Edit trigger dialog
+- ✅ Trigger type selection (OnClick for ButtonObject, OnTimelineStart for all objects)
+- ✅ Action builder dialog
+  - ✅ Navigate to slide (with slide selection)
+  - ✅ Set variable (with type-appropriate value inputs)
+  - ✅ Show/hide layer (with layer selection)
+  - ⏳ Jump to timeline point (deferred to Phase 7)
 
-### 3.3 Validation & Warnings
-- [ ] Validate trigger references (variables, slides, layers exist)
-- [ ] Warn on missing references
+### 3.3 Validation & Warnings ✅
+- ✅ Validate trigger references (variables, slides, layers exist)
+- ✅ Real-time validation warnings display bar
+- ✅ Validation on variable/slide/layer deletion
+- ✅ Validation on trigger/action changes
+- ✅ Reference integrity checking via ProjectValidator
 
-**Acceptance Criteria**: Users can create variables, add triggers to objects, and configure actions like navigation and variable manipulation.
+### Testing ✅
+- ✅ 63+ robust tests covering edge cases and complex scenarios
+- ✅ Variable management robust tests (10 tests)
+- ✅ Trigger management robust tests (9 tests)
+- ✅ Action management robust tests (12 tests)
+- ✅ Advanced integration tests (32 tests)
+- ✅ Validation scenario testing
+- ✅ Performance testing with large datasets
+- ✅ Serialization round-trip testing
+
+**Acceptance Criteria Met**: ✅ Users can create variables, add triggers to objects, configure actions like navigation and variable manipulation, and receive validation warnings for broken references.
 
 ---
 
-## Phase 4: HTML/JavaScript Runtime Player
+## Phase 4: HTML/JavaScript Runtime Player 🚧
 
 **Goal**: Generate a functional web-based player that can execute projects.
+
+**Status**: 🚧 **NEXT** - Ready to begin
 
 ### 4.1 Player Core (Authoring.Player)
 - [ ] Player HTML template
@@ -231,9 +252,12 @@ This document outlines the development phases and milestones for SlideForge, an 
 **Goal**: Refine the MVP experience and prepare for early adopters.
 
 ### 6.1 UX Improvements
-- [ ] Keyboard shortcuts
-- [ ] Undo/redo system
-- [ ] Copy/paste objects between slides
+- ✅ Menu system (File, Edit, View, Help)
+- ✅ Keyboard shortcuts display (Help menu)
+- ✅ Help dialogs (About, Documentation, Keyboard Shortcuts)
+- ⏳ Keyboard shortcuts implementation (UI ready, functionality in Phase 6)
+- [ ] Undo/redo system (UI ready, functionality in Phase 6)
+- [ ] Copy/paste objects between slides (UI ready, functionality in Phase 6)
 - [ ] Better error messages and user feedback
 - [ ] Loading states and progress indicators
 
@@ -314,17 +338,20 @@ See [Contributing Guidelines](CONTRIBUTING.md) (when available) for how to get i
 - **v0.1** ✅ - Foundation and project setup
 - **v0.2** ✅ - Phase 1: Core data model (COMPLETE)
 - **v0.3** ✅ - Phase 2: Minimal Desktop Editor MVP (COMPLETE)
-- **v0.4** 🚧 - Phase 3: Triggers & Variables System (NEXT)
+- **v0.4** ✅ - Phase 3: Triggers & Variables System (COMPLETE)
+- **v0.4.1** ✅ - Menu system and UI improvements (Edit/View/Help menus with commands, improved slide management with prominent toolbar button)
+- **v0.5** 🚧 - Phase 4: HTML/JavaScript Runtime Player (NEXT)
 - **v1.0** 📋 - MVP complete (Phases 1-6)
 
 ## Testing Infrastructure
 
 ### Test Organization
-- **34 test files** organized by category (Unit, Integration, UI, Property-Based, Performance)
-- **152+ tests** covering all components
+- **40+ test files** organized by category (Unit, Integration, UI, Property-Based, Performance)
+- **354+ tests** covering all components (125 Core + 229 Desktop)
 - **Test builders** (ProjectBuilder, SlideBuilder, ObjectBuilder) for fluent test data creation
 - **Assertion extensions** for cleaner test assertions
 - **Test data management** with sample project files
+- **Robust test suites** for triggers, variables, actions, and menu commands with edge case coverage
 
 ### Test Categories
 - **Unit Tests**: Model, service, and ViewModel logic
