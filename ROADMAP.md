@@ -410,6 +410,7 @@ See [Contributing Guidelines](CONTRIBUTING.md) (when available) for how to get i
 - **v0.5.4** ✅ - macOS improvements: Added .command wrapper for double-click support, improved macOS packaging and installation experience
 - **v0.5.5** ✅ - CI/CD fixes: Fixed YAML syntax error (heredoc replaced with printf), added macOS Gatekeeper bypass instructions
 - **v0.5.6** ✅ - macOS .app bundle: Implemented proper .app bundle for ARM and Intel Macs, improved macOS integration and UX
+- **v0.5.7** ✅ - Documentation: Fixed macOS installation instructions, updated quarantine removal steps for .app bundles
 - **v1.0** 📋 - MVP complete (Phases 1-6)
 
 ## Testing Infrastructure
