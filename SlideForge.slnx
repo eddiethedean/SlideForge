@@ -5,4 +5,8 @@
     <Project Path="src/Authoring.Export/Authoring.Export.csproj" />
     <Project Path="src/Authoring.Player/Authoring.Player.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Authoring.Core.Tests/Authoring.Core.Tests.csproj" />
+    <Project Path="tests/Authoring.Desktop.Tests/Authoring.Desktop.Tests.csproj" />
+  </Folder>
 </Solution>

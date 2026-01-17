@@ -58,8 +58,9 @@ public class SerializationPropertyTests
     [Property]
     public bool Serialization_PreservesObjectPositions(double x, double y)
     {
-        // Filter valid positions - use conditional property
-        if (x < 0 || x > 10000 || y < 0 || y > 10000)
+        // Filter valid positions (including NaN and Infinity) - use conditional property
+        if (double.IsNaN(x) || double.IsInfinity(x) || double.IsNaN(y) || double.IsInfinity(y) ||
+            x < 0 || x > 10000 || y < 0 || y > 10000)
             return true; // Skip invalid positions
 
         // Arrange
@@ -71,6 +72,7 @@ public class SerializationPropertyTests
             Width = 1920,
             Height = 1080
         };
+        slide.Layers.Add(new Layer { Id = Guid.NewGuid().ToString(), Name = "Base Layer", Visible = true });
 
         var textObject = new TextObject
         {

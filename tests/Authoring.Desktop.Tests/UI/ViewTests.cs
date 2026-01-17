@@ -1,4 +1,7 @@
-using Avalonia.Headless;
+using Avalonia.Headless.XUnit;
+using Avalonia.Threading;
+using Authoring.Desktop.Services;
+using Authoring.Desktop.Tests.Helpers;
 using Authoring.Desktop.ViewModels;
 using Authoring.Desktop.Views;
 using Xunit;
@@ -6,72 +9,54 @@ using Xunit;
 namespace Authoring.Desktop.Tests.UI;
 
 [Trait("Category", "UI")]
-public class ViewTests
+public class ViewTests : AvaloniaTestBase
 {
-    [Fact]
+    [AvaloniaFact]
     public void MainWindow_CanBeInstantiated()
     {
-        // Arrange
-        AppBuilder.Configure<Avalonia.Application>()
-            .UseHeadless(new AvaloniaHeadlessPlatformOptions())
-            .SetupWithoutStarting();
-
-        // Act
+        // Arrange & Act & Assert
         var window = new MainWindow();
-
-        // Assert
+        Dispatcher.UIThread.RunJobs();
         Assert.NotNull(window);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void MainWindow_WithViewModel_LoadsCorrectly()
     {
         // Arrange
-        AppBuilder.Configure<Avalonia.Application>()
-            .UseHeadless(new AvaloniaHeadlessPlatformOptions())
-            .SetupWithoutStarting();
-
-        var mockService = new Moq.Mock<Services.IProjectService>();
+        var mockService = new Moq.Mock<Authoring.Desktop.Services.IProjectService>();
         var viewModel = new MainWindowViewModel(mockService.Object);
+        
+        // Act & Assert - Should not throw
         var window = new MainWindow
         {
             DataContext = viewModel
         };
-
-        // Act & Assert - Should not throw
+        Dispatcher.UIThread.RunJobs();
+        
         Assert.NotNull(window);
         Assert.NotNull(window.DataContext);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void NewProjectDialog_CanBeInstantiated()
     {
-        // Arrange
-        AppBuilder.Configure<Avalonia.Application>()
-            .UseHeadless(new AvaloniaHeadlessPlatformOptions())
-            .SetupWithoutStarting();
-
-        // Act
+        // Arrange & Act & Assert
         var dialog = new Views.NewProjectDialog();
-
-        // Assert
+        Dispatcher.UIThread.RunJobs();
         Assert.NotNull(dialog);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void NewProjectDialog_WithViewModel_LoadsCorrectly()
     {
-        // Arrange
-        AppBuilder.Configure<Avalonia.Application>()
-            .UseHeadless(new AvaloniaHeadlessPlatformOptions())
-            .SetupWithoutStarting();
-
+        // Arrange & Act & Assert
         var dialog = new Views.NewProjectDialog
         {
             DataContext = new NewProjectDialogViewModel()
         };
-
-        // Act & Assert - Should not throw
+        Dispatcher.UIThread.RunJobs();
+        
         Assert.NotNull(dialog);
         Assert.NotNull(dialog.DataContext);
     }

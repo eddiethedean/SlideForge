@@ -1,37 +1,28 @@
-using Avalonia.Headless;
+using Avalonia.Headless.XUnit;
+using Avalonia.Threading;
 using Authoring.Core.Models;
+using Authoring.Desktop.Tests.Helpers;
 using Authoring.Desktop.Views.Controls;
 using Xunit;
 
 namespace Authoring.Desktop.Tests.UI;
 
 [Trait("Category", "UI")]
-public class SlideCanvasUITests
+public class SlideCanvasUITests : AvaloniaTestBase
 {
-    [Fact]
+    [AvaloniaFact]
     public void SlideCanvas_CanBeInstantiated()
     {
-        // Arrange
-        AppBuilder.Configure<Avalonia.Application>()
-            .UseHeadless(new AvaloniaHeadlessPlatformOptions())
-            .SetupWithoutStarting();
-
-        // Act
+        // Arrange & Act & Assert
         var canvas = new SlideCanvas();
-
-        // Assert
+        Dispatcher.UIThread.RunJobs();
         Assert.NotNull(canvas);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void SlideCanvas_WithSlide_LoadsCorrectly()
     {
         // Arrange
-        AppBuilder.Configure<Avalonia.Application>()
-            .UseHeadless(new AvaloniaHeadlessPlatformOptions())
-            .SetupWithoutStarting();
-
-        var canvas = new SlideCanvas();
         var slide = new Slide
         {
             Id = Guid.NewGuid().ToString(),
@@ -40,22 +31,19 @@ public class SlideCanvasUITests
             Height = 1080
         };
 
-        // Act
+        // Act & Assert
+        var canvas = new SlideCanvas();
         canvas.CurrentSlide = slide;
-
-        // Assert
+        Dispatcher.UIThread.RunJobs();
+        
+        Assert.NotNull(canvas);
         Assert.Equal(slide, canvas.CurrentSlide);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void SlideCanvas_WithSelectedObject_LoadsCorrectly()
     {
         // Arrange
-        AppBuilder.Configure<Avalonia.Application>()
-            .UseHeadless(new AvaloniaHeadlessPlatformOptions())
-            .SetupWithoutStarting();
-
-        var canvas = new SlideCanvas();
         var textObject = new TextObject
         {
             Id = Guid.NewGuid().ToString(),
@@ -63,10 +51,12 @@ public class SlideCanvasUITests
             Text = "Hello"
         };
 
-        // Act
+        // Act & Assert
+        var canvas = new SlideCanvas();
         canvas.SelectedObject = textObject;
-
-        // Assert
+        Dispatcher.UIThread.RunJobs();
+        
+        Assert.NotNull(canvas);
         Assert.Equal(textObject, canvas.SelectedObject);
     }
 }

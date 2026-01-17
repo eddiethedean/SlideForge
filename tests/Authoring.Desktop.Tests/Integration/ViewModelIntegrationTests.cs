@@ -48,9 +48,11 @@ public class ViewModelIntegrationTests
         
         var project = ProjectBuilder.Create()
             .WithName("Object Test")
+            .WithSlide(s => s.WithTitle("Test Slide"))
             .Build();
 
         viewModel.CurrentProject = project;
+        Assert.NotNull(viewModel.CurrentSlide); // Ensure slide is set
         viewModel.SelectedTool = EditorTool.Text;
 
         // Act - Create object
@@ -91,17 +93,17 @@ public class ViewModelIntegrationTests
         viewModel.AddSlideCommand.Execute(null);
         viewModel.AddSlideCommand.Execute(null);
 
-        // Assert
-        Assert.Equal(3, project.Slides.Count); // 1 default + 2 added
-        Assert.Equal(3, viewModel.Slides.Count);
+        // Assert - ProjectBuilder creates 0 slides, so we expect 2 after adding 2
+        Assert.Equal(2, project.Slides.Count);
+        Assert.Equal(2, viewModel.Slides.Count);
 
         // Act - Delete a slide
-        viewModel.CurrentSlide = project.Slides[1];
+        viewModel.CurrentSlide = project.Slides[0];
         viewModel.DeleteSlideCommand.Execute(null);
 
         // Assert
-        Assert.Equal(2, project.Slides.Count);
-        Assert.Equal(2, viewModel.Slides.Count);
+        Assert.Equal(1, project.Slides.Count);
+        Assert.Equal(1, viewModel.Slides.Count);
     }
 
     [Fact]
@@ -113,9 +115,12 @@ public class ViewModelIntegrationTests
         
         var project = ProjectBuilder.Create()
             .WithName("Tool Test")
+            .WithSlide(s => s.WithTitle("Test Slide"))
             .Build();
 
         viewModel.CurrentProject = project;
+        // Ensure CurrentSlide is set (should be set automatically, but verify)
+        Assert.NotNull(viewModel.CurrentSlide);
 
         // Act - Select tool and create object
         viewModel.SelectedTool = EditorTool.Image;
@@ -178,9 +183,11 @@ public class ViewModelIntegrationTests
         
         var project = ProjectBuilder.Create()
             .WithName("Layer Test")
+            .WithSlide(s => s.WithTitle("Test Slide"))
             .Build();
 
         viewModel.CurrentProject = project;
+        Assert.NotNull(viewModel.CurrentSlide); // Ensure slide is set
 
         // Act - Add layer
         viewModel.AddLayerCommand.Execute(null);
@@ -189,11 +196,11 @@ public class ViewModelIntegrationTests
         Assert.Equal(2, viewModel.CurrentSlide!.Layers.Count);
         Assert.Equal(2, viewModel.Layers.Count);
 
-        // Act - Toggle visibility
+        // Act - Toggle visibility (modify the layer object, which is shared between collections)
         var newLayer = viewModel.CurrentSlide.Layers[1];
         newLayer.Visible = false;
 
-        // Assert
+        // Assert - Same object reference, so both should reflect the change
         Assert.False(newLayer.Visible);
         Assert.False(viewModel.Layers[1].Visible);
     }

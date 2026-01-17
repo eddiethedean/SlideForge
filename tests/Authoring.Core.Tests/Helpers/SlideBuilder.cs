@@ -66,11 +66,11 @@ public class SlideBuilder
         return this;
     }
 
-    public SlideBuilder WithObject(Action<ObjectBuilder> configure)
+    public SlideBuilder WithObject(Func<ObjectBuilder, SlideObject> configure)
     {
         var builder = new ObjectBuilder();
-        configure(builder);
-        return WithObject(builder.Build());
+        var obj = configure(builder);
+        return WithObject(obj);
     }
 
     public Slide Build()

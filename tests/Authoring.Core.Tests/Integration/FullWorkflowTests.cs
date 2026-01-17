@@ -41,7 +41,9 @@ public class FullWorkflowTests
         project.AddSlide(slide2);
 
         // Act - Add triggers
-        var nextButton = slide1.Layers[0].Objects.OfType<ButtonObject>().First();
+        var buttons = slide1.Layers[0].Objects.OfType<ButtonObject>().ToList();
+        Assert.NotEmpty(buttons);
+        var nextButton = buttons.First();
         nextButton.Triggers.Add(new Trigger
         {
             Id = Guid.NewGuid().ToString(),
@@ -71,7 +73,10 @@ public class FullWorkflowTests
 
         // Act - Add timeline to objects
         var introSlide = project.Slides[0];
-        var textObject = introSlide.Layers[0].Objects.OfType<TextObject>().First();
+        Assert.NotEmpty(introSlide.Layers);
+        var textObjects = introSlide.Layers[0].Objects.OfType<TextObject>().ToList();
+        Assert.NotEmpty(textObjects);
+        var textObject = textObjects.First();
         textObject.Timeline = new Timeline { StartTime = 0, Duration = 3.0 };
 
         // Act - Serialize and deserialize
@@ -114,7 +119,10 @@ public class FullWorkflowTests
         // Act - Add navigation triggers
         for (int i = 0; i < slides.Count; i++)
         {
-            var button = slides[i].Layers[0].Objects.OfType<ButtonObject>().First();
+            Assert.NotEmpty(slides[i].Layers);
+            var buttons = slides[i].Layers[0].Objects.OfType<ButtonObject>().ToList();
+            Assert.NotEmpty(buttons);
+            var button = buttons.First();
             var targetSlideIndex = (i + 1) % slides.Count;
             button.Triggers.Add(new Trigger
             {
@@ -155,7 +163,10 @@ public class FullWorkflowTests
         project.AddSlide(slide);
 
         // Act - Add variable manipulation triggers
-        var button = slide.Layers[0].Objects.OfType<ButtonObject>().First();
+        Assert.NotEmpty(slide.Layers);
+        var buttons = slide.Layers[0].Objects.OfType<ButtonObject>().ToList();
+        Assert.NotEmpty(buttons);
+        var button = buttons.First();
         button.Triggers.Add(new Trigger
         {
             Id = Guid.NewGuid().ToString(),
@@ -203,7 +214,10 @@ public class FullWorkflowTests
         project.AddSlide(slide);
 
         // Act - Add layer visibility triggers
-        var button = slide.Layers[0].Objects.OfType<ButtonObject>().First();
+        Assert.NotEmpty(slide.Layers);
+        var buttons = slide.Layers[0].Objects.OfType<ButtonObject>().ToList();
+        Assert.NotEmpty(buttons);
+        var button = buttons.First();
         button.Triggers.Add(new Trigger
         {
             Id = Guid.NewGuid().ToString(),

@@ -64,9 +64,13 @@ public static class TestDataFactory
             .Build();
 
         // Add triggers to the button
-        var button = project.Slides[0].Layers[0].Objects
+        var buttons = project.Slides[0].Layers[0].Objects
             .OfType<ButtonObject>()
-            .First();
+            .ToList();
+        if (buttons.Count == 0)
+            throw new InvalidOperationException("No ButtonObject found in first slide. Objects: " + 
+                string.Join(", ", project.Slides[0].Layers[0].Objects.Select(o => o.GetType().Name)));
+        var button = buttons.First();
         
         button.Triggers.Add(new Trigger
         {
@@ -178,6 +182,11 @@ public static class TestDataFactory
 
         // Add a trigger with invalid slide reference
         var slide = project.Slides[0];
+        if (slide.Layers.Count == 0)
+        {
+            slide.Layers.Add(new Layer { Id = Guid.NewGuid().ToString(), Name = "Base Layer", Visible = true });
+        }
+        
         var button = new ButtonObject
         {
             Id = Guid.NewGuid().ToString(),

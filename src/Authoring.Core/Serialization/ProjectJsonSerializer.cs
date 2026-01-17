@@ -14,6 +14,7 @@ public static class ProjectJsonSerializer
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
         Converters =
         {
             new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)

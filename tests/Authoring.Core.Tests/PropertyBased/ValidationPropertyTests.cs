@@ -102,6 +102,7 @@ public class ValidationPropertyTests
             Width = 1920,
             Height = 1080
         };
+        slide.Layers.Add(new Layer { Id = Guid.NewGuid().ToString(), Name = "Base Layer", Visible = true });
 
         var textObject = new TextObject
         {

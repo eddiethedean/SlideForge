@@ -2,6 +2,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Authoring.Core.Models;
 using Authoring.Core.Serialization;
+using Authoring.Core.Tests.Helpers;
 using Authoring.Desktop.Services;
 using Xunit;
 
@@ -123,7 +124,10 @@ public class ProjectLifecycleTests : IDisposable
 
         // Act - Load and modify properties
         var loadedProject = await _service.OpenProjectAsync(filePath);
-        var loadedTextObject = loadedProject!.Slides[0].Layers[0].Objects.OfType<TextObject>().First();
+        Assert.NotEmpty(loadedProject!.Slides[0].Layers);
+        var textObjects = loadedProject.Slides[0].Layers[0].Objects.OfType<TextObject>().ToList();
+        Assert.NotEmpty(textObjects);
+        var loadedTextObject = textObjects.First();
         
         loadedTextObject.X = 200;
         loadedTextObject.Y = 300;
@@ -136,7 +140,10 @@ public class ProjectLifecycleTests : IDisposable
 
         // Act - Load and verify
         var finalProject = await _service.OpenProjectAsync(filePath);
-        var finalTextObject = finalProject!.Slides[0].Layers[0].Objects.OfType<TextObject>().First();
+        Assert.NotEmpty(finalProject!.Slides[0].Layers);
+        var finalTextObjects = finalProject.Slides[0].Layers[0].Objects.OfType<TextObject>().ToList();
+        Assert.NotEmpty(finalTextObjects);
+        var finalTextObject = finalTextObjects.First();
 
         // Assert
         Assert.Equal(200, finalTextObject.X);
@@ -193,8 +200,13 @@ public class ProjectLifecycleTests : IDisposable
         await _service.SaveProjectAsync(project, filePath);
         var loadedProject = await _service.OpenProjectAsync(filePath);
 
-        // Assert
-        var loadedButton = loadedProject!.Slides[0].Layers[0].Objects.OfType<ButtonObject>().First();
+        // Assert - slide1 was added after the default slide, so it's at index 1
+        var slide1Index = loadedProject!.Slides.FindIndex(s => s.Id == "slide1");
+        Assert.True(slide1Index >= 0, "slide1 should exist in loaded project");
+        Assert.NotEmpty(loadedProject.Slides[slide1Index].Layers);
+        var buttons = loadedProject.Slides[slide1Index].Layers[0].Objects.OfType<ButtonObject>().ToList();
+        Assert.NotEmpty(buttons);
+        var loadedButton = buttons.First();
         Assert.Single(loadedButton.Triggers);
         
         var trigger = loadedButton.Triggers[0];
@@ -254,8 +266,14 @@ public class ProjectLifecycleTests : IDisposable
         Assert.Single(loadedProject!.Variables);
         Assert.Equal("counter", loadedProject.Variables[0].Id);
 
-        var loadedButton = loadedProject.Slides[0].Layers[0].Objects.OfType<ButtonObject>().First();
-        var setAction = loadedButton.Triggers[0].Actions.OfType<SetVariableAction>().First();
+        Assert.NotEmpty(loadedProject.Slides[0].Layers);
+        var buttons = loadedProject.Slides[0].Layers[0].Objects.OfType<ButtonObject>().ToList();
+        Assert.NotEmpty(buttons);
+        var loadedButton = buttons.First();
+        Assert.NotEmpty(loadedButton.Triggers);
+        var setActions = loadedButton.Triggers[0].Actions.OfType<SetVariableAction>().ToList();
+        Assert.NotEmpty(setActions);
+        var setAction = setActions.First();
         Assert.Equal("counter", setAction.VariableId);
         Assert.Equal(10, setAction.Value);
     }
@@ -280,8 +298,15 @@ public class ProjectLifecycleTests : IDisposable
         Assert.Equal(project.Slides.Count, loadedProject.Slides.Count);
 
         // Verify objects and triggers
-        var originalButton = project.Slides[0].Layers[0].Objects.OfType<ButtonObject>().First();
-        var loadedButton = loadedProject.Slides[0].Layers[0].Objects.OfType<ButtonObject>().First();
+        Assert.NotEmpty(project.Slides[0].Layers);
+        var originalButtons = project.Slides[0].Layers[0].Objects.OfType<ButtonObject>().ToList();
+        Assert.NotEmpty(originalButtons);
+        var originalButton = originalButtons.First();
+        
+        Assert.NotEmpty(loadedProject.Slides[0].Layers);
+        var loadedButtons = loadedProject.Slides[0].Layers[0].Objects.OfType<ButtonObject>().ToList();
+        Assert.NotEmpty(loadedButtons);
+        var loadedButton = loadedButtons.First();
         
         Assert.Equal(originalButton.Triggers.Count, loadedButton.Triggers.Count);
         Assert.Equal(originalButton.Label, loadedButton.Label);

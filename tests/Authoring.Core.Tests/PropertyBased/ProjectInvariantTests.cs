@@ -142,8 +142,9 @@ public class ProjectInvariantTests
     [Property]
     public bool Project_AllSlides_HavePositiveDimensions(double width, double height)
     {
-        // Filter valid dimensions
-        if (width <= 0 || width > 10000 || height <= 0 || height > 10000)
+        // Filter valid dimensions (including NaN and Infinity)
+        if (double.IsNaN(width) || double.IsInfinity(width) || double.IsNaN(height) || double.IsInfinity(height) ||
+            width <= 0 || width > 10000 || height <= 0 || height > 10000)
             return true; // Skip invalid dimensions
 
         // Arrange - Create project with a slide using the generated dimensions

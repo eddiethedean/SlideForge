@@ -103,7 +103,11 @@ public class SerializationIntegrationTests
                     .BuildButtonObject("Test Actions")))
             .Build();
 
-        var button = project.Slides[1].Layers[0].Objects.OfType<ButtonObject>().First();
+        Assert.Equal(2, project.Slides.Count);
+        Assert.NotEmpty(project.Slides[1].Layers);
+        var buttons = project.Slides[1].Layers[0].Objects.OfType<ButtonObject>().ToList();
+        Assert.NotEmpty(buttons);
+        var button = buttons.First();
         button.Triggers.Add(new Trigger
         {
             Id = Guid.NewGuid().ToString(),
@@ -154,7 +158,10 @@ public class SerializationIntegrationTests
         Assert.Equal("Автор", deserialized.Author);
         Assert.Equal("日本語スライド", deserialized.Slides[0].Title);
         
-        var textObj = deserialized.Slides[0].Layers[0].Objects.OfType<TextObject>().First();
+        Assert.NotEmpty(deserialized.Slides[0].Layers);
+        var textObjects = deserialized.Slides[0].Layers[0].Objects.OfType<TextObject>().ToList();
+        Assert.NotEmpty(textObjects);
+        var textObj = textObjects.First();
         Assert.Equal("Hello 世界", textObj.Text);
     }
 
@@ -199,7 +206,11 @@ public class SerializationIntegrationTests
             .Build();
 
         // Add trigger that references slide and variable
-        var button = project.Slides[1].Layers[0].Objects.OfType<ButtonObject>().First();
+        Assert.Equal(2, project.Slides.Count);
+        Assert.NotEmpty(project.Slides[1].Layers);
+        var buttons = project.Slides[1].Layers[0].Objects.OfType<ButtonObject>().ToList();
+        Assert.NotEmpty(buttons);
+        var button = buttons.First();
         button.Triggers.Add(new Trigger
         {
             Id = Guid.NewGuid().ToString(),
@@ -216,11 +227,20 @@ public class SerializationIntegrationTests
         var deserialized = ProjectJsonSerializer.Deserialize(json);
 
         // Assert - Verify references are preserved
-        var loadedButton = deserialized.Slides[1].Layers[0].Objects.OfType<ButtonObject>().First();
-        var navAction = loadedButton.Triggers[0].Actions.OfType<NavigateToSlideAction>().First();
+        Assert.Equal(2, deserialized.Slides.Count);
+        Assert.NotEmpty(deserialized.Slides[1].Layers);
+        var loadedButtons = deserialized.Slides[1].Layers[0].Objects.OfType<ButtonObject>().ToList();
+        Assert.NotEmpty(loadedButtons);
+        var loadedButton = loadedButtons.First();
+        Assert.NotEmpty(loadedButton.Triggers);
+        var navActions = loadedButton.Triggers[0].Actions.OfType<NavigateToSlideAction>().ToList();
+        Assert.NotEmpty(navActions);
+        var navAction = navActions.First();
         Assert.Equal("slide1", navAction.TargetSlideId);
         
-        var setAction = loadedButton.Triggers[0].Actions.OfType<SetVariableAction>().First();
+        var setActions = loadedButton.Triggers[0].Actions.OfType<SetVariableAction>().ToList();
+        Assert.NotEmpty(setActions);
+        var setAction = setActions.First();
         Assert.Equal("var1", setAction.VariableId);
 
         // Verify referenced entities exist
