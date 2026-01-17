@@ -223,36 +223,34 @@ jobs:
           
           # Create Info.plist
           VERSION="${{ env.VERSION }}"
-          cat > "$APP_DIR/Contents/Info.plist" << 'PLISTEOF'
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>CFBundleExecutable</key>
-	<string>SlideForge</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.slideforge.app</string>
-	<key>CFBundleName</key>
-	<string>SlideForge</string>
-	<key>CFBundleDisplayName</key>
-	<string>SlideForge</string>
-	<key>CFBundleVersion</key>
-	<string>0.5.5</string>
-	<key>CFBundleShortVersionString</key>
-	<string>0.5.5</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleSignature</key>
-	<string>SLDG</string>
-	<key>LSMinimumSystemVersion</key>
-	<string>10.15</string>
-	<key>NSHighResolutionCapable</key>
-	<true/>
-	<key>NSRequiresAquaSystemAppearance</key>
-	<false/>
-</dict>
-</plist>
-PLISTEOF
+          printf '<?xml version="1.0" encoding="UTF-8"?>\n' > "$APP_DIR/Contents/Info.plist"
+          printf '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '<plist version="1.0">\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '<dict>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<key>CFBundleExecutable</key>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<string>SlideForge</string>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<key>CFBundleIdentifier</key>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<string>com.slideforge.app</string>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<key>CFBundleName</key>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<string>SlideForge</string>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<key>CFBundleDisplayName</key>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<string>SlideForge</string>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<key>CFBundleVersion</key>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<string>%s</string>\n' "$VERSION" >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<key>CFBundleShortVersionString</key>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<string>%s</string>\n' "$VERSION" >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<key>CFBundlePackageType</key>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<string>APPL</string>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<key>CFBundleSignature</key>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<string>SLDG</string>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<key>LSMinimumSystemVersion</key>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<string>10.15</string>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<key>NSHighResolutionCapable</key>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<true/>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<key>NSRequiresAquaSystemAppearance</key>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '\t<false/>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '</dict>\n' >> "$APP_DIR/Contents/Info.plist"
+          printf '</plist>\n' >> "$APP_DIR/Contents/Info.plist"
           
           # Create PkgInfo file (optional but helps with app identification)
           echo "APPLSLDG" > "$APP_DIR/Contents/PkgInfo"
