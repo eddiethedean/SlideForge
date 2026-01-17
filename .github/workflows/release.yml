@@ -79,6 +79,14 @@ jobs:
             -p:PublishSingleFile=true \
             -p:IncludeNativeLibrariesForSelfExtract=true \
             -p:EnableCompressionInSingleFile=true
+          
+          # Ensure executables have proper permissions on Unix-like systems
+          if [[ "${{ matrix.runtime }}" == linux-* ]] || [[ "${{ matrix.runtime }}" == osx-* ]]; then
+            if [ -f "./publish/${{ matrix.runtime }}/Authoring.Desktop" ]; then
+              chmod +x "./publish/${{ matrix.runtime }}/Authoring.Desktop"
+              echo "Set execute permissions on Authoring.Desktop"
+            fi
+          fi
 
       - name: Get version
         id: version
@@ -108,6 +116,26 @@ jobs:
           Compress-Archive -Path "./publish/${{ matrix.runtime }}/*" -DestinationPath "./$archiveName" -Force
           echo "ARCHIVE_NAME=$archiveName" >> $env:GITHUB_ENV
 
+      - name: Verify executable permissions (Unix)
+        if: startsWith(matrix.runtime, 'linux-') || startsWith(matrix.runtime, 'osx-')
+        shell: bash
+        run: |
+          EXECUTABLE="./publish/${{ matrix.runtime }}/Authoring.Desktop"
+          if [ -f "$EXECUTABLE" ]; then
+            # Ensure executable has proper permissions before packaging
+            chmod +x "$EXECUTABLE"
+            # Verify permissions are set correctly
+            ls -l "$EXECUTABLE"
+            if [ ! -x "$EXECUTABLE" ]; then
+              echo "ERROR: Executable permissions not set correctly!"
+              exit 1
+            fi
+            echo "✓ Execute permissions verified for ${{ matrix.runtime }}"
+          else
+            echo "ERROR: Executable not found at $EXECUTABLE"
+            exit 1
+          fi
+
       - name: Package Linux
         if: startsWith(matrix.runtime, 'linux-')
         shell: bash
@@ -117,11 +145,12 @@ jobs:
           else
             ARCH="arm64"
           fi
-          # Ensure executable has proper permissions
-          chmod +x "./publish/${{ matrix.runtime }}/Authoring.Desktop"
           ARCHIVE_NAME="SlideForge-linux-$ARCH-v${{ env.VERSION }}.tar.gz"
+          # tar preserves permissions when using -p flag or when permissions are already set
           tar -czf "$ARCHIVE_NAME" -C "./publish/${{ matrix.runtime }}" .
           echo "ARCHIVE_NAME=$ARCHIVE_NAME" >> $GITHUB_ENV
+          # Verify the archive contains executable with correct permissions
+          tar -tzf "$ARCHIVE_NAME" | grep -q "Authoring.Desktop" && echo "✓ Archive created successfully"
 
       - name: Package macOS
         if: startsWith(matrix.runtime, 'osx-')
@@ -132,13 +161,14 @@ jobs:
           else
             ARCH="arm64"
           fi
-          # Ensure executable has proper permissions
-          chmod +x "./publish/${{ matrix.runtime }}/Authoring.Desktop"
           ARCHIVE_NAME="SlideForge-macos-$ARCH-v${{ env.VERSION }}.zip"
           cd "./publish/${{ matrix.runtime }}"
-          zip -r "../../$ARCHIVE_NAME" .
+          # zip preserves permissions when using -X flag
+          zip -X -r "../../$ARCHIVE_NAME" .
           cd ../..
           echo "ARCHIVE_NAME=$ARCHIVE_NAME" >> $GITHUB_ENV
+          # Verify the archive contains the executable
+          unzip -l "$ARCHIVE_NAME" | grep -q "Authoring.Desktop" && echo "✓ Archive created successfully"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -199,9 +229,9 @@ jobs:
 
             ### Installation
             - **Windows**: Extract the ZIP file and run `Authoring.Desktop.exe`
-            - **macOS**: Extract the ZIP file, open Terminal, navigate to the folder, and run `chmod +x Authoring.Desktop && ./Authoring.Desktop`
-              - Alternatively, right-click the file → Get Info → enable "Open with Terminal"
-            - **Linux**: Extract the tar.gz file and run `./Authoring.Desktop` (already has execute permissions)
+            - **macOS**: Extract the ZIP file and run `./Authoring.Desktop` from Terminal (execute permissions are set automatically)
+              - Open Terminal, navigate to the extracted folder, then: `./Authoring.Desktop`
+            - **Linux**: Extract the tar.gz file and run `./Authoring.Desktop` (execute permissions are set automatically)
 
             ### Changes
             See commit history for details.
