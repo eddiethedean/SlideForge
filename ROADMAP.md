@@ -22,7 +22,9 @@ This document outlines the development phases and milestones for SlideForge, an 
 - ✅ HTML/JavaScript runtime player (fully functional)
 - ✅ Service extraction refactoring (improved architecture)
 - ✅ Auto-update system with GitHub Releases integration
-- ✅ CI/CD pipeline with multi-platform builds and releases
+- ✅ CI/CD pipeline with multi-platform builds and releases (Windows, macOS, Linux - x64 and ARM64)
+- ✅ macOS .command wrapper for double-click launch support
+- ✅ Linux build fixes and improved error handling
 - ✅ Property-based testing infrastructure (FsCheck)
 - ✅ Performance testing infrastructure (BenchmarkDotNet)
 - ✅ UI testing infrastructure (Avalonia.Headless)
@@ -404,6 +406,8 @@ See [Contributing Guidelines](CONTRIBUTING.md) (when available) for how to get i
 - **v0.5** ✅ - Phase 4: HTML/JavaScript Runtime Player (COMPLETE)
 - **v0.5.1** ✅ - Code refactoring: Service extraction, architecture improvements, .NET 10.0 upgrade, all warnings resolved
 - **v0.5.2** ✅ - Auto-update system: GitHub Releases integration, CI/CD pipeline with multi-platform builds (Windows, macOS, Linux x64/ARM64), comprehensive update feature tests (57 tests)
+- **v0.5.3** ✅ - CI/CD fixes: Fixed Linux build packaging (tar pipe error handling), improved error diagnostics, executable permission fixes
+- **v0.5.4** ✅ - macOS improvements: Added .command wrapper for double-click support, improved macOS packaging and installation experience
 - **v1.0** 📋 - MVP complete (Phases 1-6)
 
 ## Testing Infrastructure
