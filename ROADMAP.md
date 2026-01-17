@@ -408,6 +408,7 @@ See [Contributing Guidelines](CONTRIBUTING.md) (when available) for how to get i
 - **v0.5.2** ✅ - Auto-update system: GitHub Releases integration, CI/CD pipeline with multi-platform builds (Windows, macOS, Linux x64/ARM64), comprehensive update feature tests (57 tests)
 - **v0.5.3** ✅ - CI/CD fixes: Fixed Linux build packaging (tar pipe error handling), improved error diagnostics, executable permission fixes
 - **v0.5.4** ✅ - macOS improvements: Added .command wrapper for double-click support, improved macOS packaging and installation experience
+- **v0.5.5** ✅ - CI/CD fixes: Fixed YAML syntax error (heredoc replaced with printf), added macOS Gatekeeper bypass instructions
 - **v1.0** 📋 - MVP complete (Phases 1-6)
 
 ## Testing Infrastructure
