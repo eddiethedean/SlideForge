@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
 using Authoring.Core.Models;
 using Authoring.Desktop.ViewModels;
 using Authoring.Desktop.Views.Controls;
@@ -57,21 +58,27 @@ public partial class MainWindow : Window
     {
         if (DataContext is MainWindowViewModel vm && vm.SelectedImageObject != null)
         {
-            var dialog = new OpenFileDialog
+            var topLevel = TopLevel.GetTopLevel(this);
+            if (topLevel == null) return;
+
+            var options = new FilePickerOpenOptions
             {
                 Title = "Select Image",
-                Filters = new System.Collections.Generic.List<FileDialogFilter>
+                FileTypeFilter = new[]
                 {
-                    new FileDialogFilter { Name = "Image Files", Extensions = { "png", "jpg", "jpeg", "gif", "bmp", "svg" } },
-                    new FileDialogFilter { Name = "All Files", Extensions = { "*" } }
+                    new FilePickerFileType("Image Files")
+                    {
+                        Patterns = new[] { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp", "*.svg" }
+                    },
+                    FilePickerFileTypes.All
                 },
                 AllowMultiple = false
             };
 
-            var result = await dialog.ShowAsync(this);
-            if (result != null && result.Length > 0)
+            var files = await topLevel.StorageProvider.OpenFilePickerAsync(options);
+            if (files.Count > 0 && files[0].TryGetLocalPath() is { } filePath)
             {
-                vm.SelectedImageObject.SourcePath = result[0];
+                vm.SelectedImageObject.SourcePath = filePath;
                 vm.OnObjectPropertyChanged();
             }
         }

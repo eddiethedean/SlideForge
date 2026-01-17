@@ -18,4 +18,18 @@ public class ButtonObject : SlideObject
     /// </summary>
     [JsonPropertyName("enabled")]
     public bool Enabled { get; set; } = true;
+
+    /// <summary>
+    /// Creates a shallow copy of this ButtonObject.
+    /// </summary>
+    public override object Clone()
+    {
+        var clone = new ButtonObject
+        {
+            Label = Label,
+            Enabled = Enabled
+        };
+        CopyBasePropertiesTo(clone);
+        return clone;
+    }
 }

@@ -1,0 +1,203 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 0.5.0)'
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }} (${{ matrix.runtime }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux builds
+          - os: ubuntu-latest
+            runtime: linux-x64
+            artifact-name: SlideForge-linux-x64
+            package-ext: tar.gz
+          - os: ubuntu-latest
+            runtime: linux-arm64
+            artifact-name: SlideForge-linux-arm64
+            package-ext: tar.gz
+          # Windows builds
+          - os: windows-latest
+            runtime: win-x64
+            artifact-name: SlideForge-windows-x64
+            package-ext: zip
+          - os: windows-latest
+            runtime: win-arm64
+            artifact-name: SlideForge-windows-arm64
+            package-ext: zip
+          # macOS builds
+          - os: macos-latest
+            runtime: osx-x64
+            artifact-name: SlideForge-macos-x64
+            package-ext: zip
+          - os: macos-latest
+            runtime: osx-arm64
+            artifact-name: SlideForge-macos-arm64
+            package-ext: zip
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
+
+      - name: Publish application
+        run: |
+          dotnet publish src/Authoring.Desktop/Authoring.Desktop.csproj \
+            --configuration Release \
+            --runtime ${{ matrix.runtime }} \
+            --self-contained true \
+            --output ./publish/${{ matrix.runtime }} \
+            -p:PublishSingleFile=true \
+            -p:IncludeNativeLibrariesForSelfExtract=true \
+            -p:EnableCompressionInSingleFile=true
+
+      - name: Get version
+        id: version
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${{ github.ref_name }}"
+            VERSION=${VERSION#v}
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Package Windows
+        if: startsWith(matrix.runtime, 'win-')
+        shell: pwsh
+        run: |
+          $version = "${{ env.VERSION }}"
+          $runtime = "${{ matrix.runtime }}"
+          if ($runtime -eq "win-x64") {
+            $arch = "x64"
+          } else {
+            $arch = "arm64"
+          }
+          $archiveName = "SlideForge-windows-$arch-v$version.zip"
+          Compress-Archive -Path "./publish/${{ matrix.runtime }}/*" -DestinationPath "./$archiveName" -Force
+          echo "ARCHIVE_NAME=$archiveName" >> $env:GITHUB_ENV
+
+      - name: Package Linux
+        if: startsWith(matrix.runtime, 'linux-')
+        shell: bash
+        run: |
+          if [ "${{ matrix.runtime }}" == "linux-x64" ]; then
+            ARCH="x64"
+          else
+            ARCH="arm64"
+          fi
+          ARCHIVE_NAME="SlideForge-linux-$ARCH-v${{ env.VERSION }}.tar.gz"
+          tar -czf "$ARCHIVE_NAME" -C "./publish/${{ matrix.runtime }}" .
+          echo "ARCHIVE_NAME=$ARCHIVE_NAME" >> $GITHUB_ENV
+
+      - name: Package macOS
+        if: startsWith(matrix.runtime, 'osx-')
+        shell: bash
+        run: |
+          if [ "${{ matrix.runtime }}" == "osx-x64" ]; then
+            ARCH="x64"
+          else
+            ARCH="arm64"
+          fi
+          ARCHIVE_NAME="SlideForge-macos-$ARCH-v${{ env.VERSION }}.zip"
+          cd "./publish/${{ matrix.runtime }}"
+          zip -r "../../$ARCHIVE_NAME" .
+          cd ../..
+          echo "ARCHIVE_NAME=$ARCHIVE_NAME" >> $GITHUB_ENV
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: ${{ env.ARCHIVE_NAME }}
+          retention-days: 30
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Get version
+        id: version
+        run: |
+          VERSION="${{ github.ref_name }}"
+          VERSION=${VERSION#v}
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: List artifacts
+        run: |
+          find ./artifacts -type f
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## SlideForge ${{ steps.version.outputs.VERSION }}
+
+            ### Downloads
+
+            #### Windows
+            - **x64 (Intel/AMD)**: [SlideForge-windows-x64.zip](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/SlideForge-windows-x64-v${{ steps.version.outputs.VERSION }}.zip)
+            - **ARM64**: [SlideForge-windows-arm64.zip](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/SlideForge-windows-arm64-v${{ steps.version.outputs.VERSION }}.zip)
+
+            #### macOS
+            - **x64 (Intel)**: [SlideForge-macos-x64.zip](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/SlideForge-macos-x64-v${{ steps.version.outputs.VERSION }}.zip)
+            - **ARM64 (Apple Silicon)**: [SlideForge-macos-arm64.zip](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/SlideForge-macos-arm64-v${{ steps.version.outputs.VERSION }}.zip)
+
+            #### Linux
+            - **x64 (Intel/AMD)**: [SlideForge-linux-x64.tar.gz](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/SlideForge-linux-x64-v${{ steps.version.outputs.VERSION }}.tar.gz)
+            - **ARM64**: [SlideForge-linux-arm64.tar.gz](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/SlideForge-linux-arm64-v${{ steps.version.outputs.VERSION }}.tar.gz)
+
+            ### Installation
+            - **Windows**: Extract the ZIP file and run `Authoring.Desktop.exe`
+            - **macOS**: Extract the ZIP file and run `Authoring.Desktop`
+            - **Linux**: Extract the tar.gz file and run `./Authoring.Desktop`
+
+            ### Changes
+            See commit history for details.
+          files: |
+            artifacts/**/*.zip
+            artifacts/**/*.tar.gz
+          draft: false
+          prerelease: false

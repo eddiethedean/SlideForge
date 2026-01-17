@@ -30,4 +30,20 @@ public class TextObject : SlideObject
     /// </summary>
     [JsonPropertyName("color")]
     public string Color { get; set; } = "#000000";
+
+    /// <summary>
+    /// Creates a shallow copy of this TextObject.
+    /// </summary>
+    public override object Clone()
+    {
+        var clone = new TextObject
+        {
+            Text = Text,
+            FontFamily = FontFamily,
+            FontSize = FontSize,
+            Color = Color
+        };
+        CopyBasePropertiesTo(clone);
+        return clone;
+    }
 }

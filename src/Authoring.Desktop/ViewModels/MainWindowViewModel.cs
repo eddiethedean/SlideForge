@@ -9,6 +9,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Platform.Storage;
 using Authoring.Core.Models;
 using Authoring.Core.Validation;
 using Authoring.Desktop.Models;
@@ -22,6 +23,8 @@ namespace Authoring.Desktop.ViewModels;
 public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly IProjectService _projectService;
+    private readonly ISlideManagementService _slideService;
+    private readonly IObjectManagementService _objectService;
     private readonly Window? _mainWindow;
     private Project? _currentProject;
     private Slide? _currentSlide;
@@ -30,8 +33,15 @@ public partial class MainWindowViewModel : ViewModelBase
     private string? _projectFilePath;
 
     public MainWindowViewModel(IProjectService projectService, Window? mainWindow = null)
+        : this(projectService, new SlideManagementService(), new ObjectManagementService(), mainWindow)
     {
-        _projectService = projectService;
+    }
+
+    internal MainWindowViewModel(IProjectService projectService, ISlideManagementService slideService, IObjectManagementService objectService, Window? mainWindow = null)
+    {
+        _projectService = projectService ?? throw new ArgumentNullException(nameof(projectService));
+        _slideService = slideService ?? throw new ArgumentNullException(nameof(slideService));
+        _objectService = objectService ?? throw new ArgumentNullException(nameof(objectService));
         _mainWindow = mainWindow;
         Slides = new ObservableCollection<Slide>();
         Layers = new ObservableCollection<Layer>();
@@ -260,21 +270,26 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (_mainWindow == null) return;
 
-        var dialog = new OpenFileDialog
+        var topLevel = TopLevel.GetTopLevel(_mainWindow);
+        if (topLevel == null) return;
+
+        var options = new FilePickerOpenOptions
         {
             Title = "Open Project",
-            Filters = new List<FileDialogFilter>
+            FileTypeFilter = new[]
             {
-                new FileDialogFilter { Name = "SlideForge Project", Extensions = { "json", "sfproj" } },
-                new FileDialogFilter { Name = "All Files", Extensions = { "*" } }
+                new FilePickerFileType("SlideForge Project")
+                {
+                    Patterns = new[] { "*.json", "*.sfproj" }
+                },
+                FilePickerFileTypes.All
             },
             AllowMultiple = false
         };
 
-        var result = await dialog.ShowAsync(_mainWindow);
-        if (result != null && result.Length > 0)
+        var files = await topLevel.StorageProvider.OpenFilePickerAsync(options);
+        if (files.Count > 0 && files[0].TryGetLocalPath() is { } filePath)
         {
-            var filePath = result[0];
             var project = await _projectService.OpenProjectAsync(filePath);
             if (project != null)
             {
@@ -307,28 +322,33 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (CurrentProject == null || _mainWindow == null) return;
 
-        var dialog = new SaveFileDialog
+        var topLevel = TopLevel.GetTopLevel(_mainWindow);
+        if (topLevel == null) return;
+
+        var options = new FilePickerSaveOptions
         {
             Title = "Save Project As",
-            Filters = new List<FileDialogFilter>
+            FileTypeChoices = new[]
             {
-                new FileDialogFilter { Name = "SlideForge Project", Extensions = { "json", "sfproj" } },
-                new FileDialogFilter { Name = "All Files", Extensions = { "*" } }
+                new FilePickerFileType("SlideForge Project")
+                {
+                    Patterns = new[] { "*.json", "*.sfproj" }
+                },
+                FilePickerFileTypes.All
             },
             DefaultExtension = "json"
         };
 
         if (!string.IsNullOrEmpty(ProjectFilePath))
         {
-            dialog.InitialFileName = Path.GetFileName(ProjectFilePath);
-            dialog.Directory = Path.GetDirectoryName(ProjectFilePath);
+            options.SuggestedFileName = Path.GetFileName(ProjectFilePath);
         }
 
-        var result = await dialog.ShowAsync(_mainWindow);
-        if (result != null)
+        var result = await topLevel.StorageProvider.SaveFilePickerAsync(options);
+        if (result != null && result.TryGetLocalPath() is { } filePath)
         {
-            await _projectService.SaveProjectAsync(CurrentProject, result);
-            ProjectFilePath = result;
+            await _projectService.SaveProjectAsync(CurrentProject, filePath);
+            ProjectFilePath = filePath;
             IsModified = false;
             OnPropertyChanged(nameof(WindowTitle));
         }
@@ -339,23 +359,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (CurrentProject == null) return;
 
-        var newSlide = new Slide
-        {
-            Id = Guid.NewGuid().ToString(),
-            Title = $"Slide {CurrentProject.Slides.Count + 1}",
-            Width = 1920,
-            Height = 1080
-        };
-
-        var baseLayer = new Layer
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "Base Layer",
-            Visible = true
-        };
-
-        newSlide.Layers.Add(baseLayer);
-        CurrentProject.AddSlide(newSlide);
+        var newSlide = _slideService.CreateSlide(CurrentProject);
         UpdateSlidesCollection();
         CurrentSlide = newSlide;
         MarkModified();
@@ -367,13 +371,12 @@ public partial class MainWindowViewModel : ViewModelBase
         if (CurrentProject == null || CurrentSlide == null) return;
 
         var slideToDelete = CurrentSlide;
-        var nextSlide = CurrentProject.Slides.FirstOrDefault(s => s != slideToDelete);
+        var nextSlide = _slideService.DeleteSlide(CurrentProject, slideToDelete);
         
-        CurrentProject.Slides.Remove(slideToDelete);
         UpdateSlidesCollection();
         ValidateProject();
         
-        CurrentSlide = nextSlide ?? CurrentProject.Slides.FirstOrDefault();
+        CurrentSlide = nextSlide;
         MarkModified();
     }
 
@@ -382,38 +385,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (CurrentProject == null || CurrentSlide == null) return;
 
-        var sourceSlide = CurrentSlide;
-        var newSlide = new Slide
-        {
-            Id = Guid.NewGuid().ToString(),
-            Title = $"{sourceSlide.Title} (Copy)",
-            Width = sourceSlide.Width,
-            Height = sourceSlide.Height
-        };
-
-        foreach (var sourceLayer in sourceSlide.Layers)
-        {
-            var newLayer = new Layer
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = sourceLayer.Name,
-                Visible = sourceLayer.Visible
-            };
-
-            foreach (var sourceObject in sourceLayer.Objects)
-            {
-                var newObject = CloneObject(sourceObject);
-                if (newObject != null)
-                {
-                    newObject.Id = Guid.NewGuid().ToString();
-                    newLayer.Objects.Add(newObject);
-                }
-            }
-
-            newSlide.Layers.Add(newLayer);
-        }
-
-        CurrentProject.AddSlide(newSlide);
+        var newSlide = _slideService.DuplicateSlide(CurrentProject, CurrentSlide);
         UpdateSlidesCollection();
         CurrentSlide = newSlide;
         MarkModified();
@@ -600,52 +572,9 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (CurrentSlide == null || SelectedTool == EditorTool.None) return;
 
-        var baseLayer = CurrentSlide.Layers.FirstOrDefault();
-        if (baseLayer == null) return;
-
-        SlideObject? newObject = SelectedTool switch
-        {
-            EditorTool.Text => new TextObject
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = "Text Object",
-                X = x,
-                Y = y,
-                Width = 200,
-                Height = 50,
-                Text = "Text",
-                FontSize = 16,
-                Visible = true
-            },
-            EditorTool.Image => new ImageObject
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = "Image Object",
-                X = x,
-                Y = y,
-                Width = 100,
-                Height = 100,
-                SourcePath = "",
-                Visible = true
-            },
-            EditorTool.Button => new ButtonObject
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = "Button Object",
-                X = x,
-                Y = y,
-                Width = 150,
-                Height = 40,
-                Label = "Button",
-                Enabled = true,
-                Visible = true
-            },
-            _ => null
-        };
-
+        var newObject = _objectService.CreateObject(CurrentSlide, SelectedTool, x, y);
         if (newObject != null)
         {
-            baseLayer.Objects.Add(newObject);
             SelectedObject = newObject;
             SelectedTool = EditorTool.None; // Reset tool after creation
             MarkModified();
@@ -657,14 +586,11 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (SelectedObject == null || CurrentSlide == null) return;
 
-        var baseLayer = CurrentSlide.Layers.FirstOrDefault();
-        if (baseLayer != null)
-        {
-            baseLayer.Objects.Remove(SelectedObject);
-            SelectedObject = null;
-            ValidateProject();
-            MarkModified();
-        }
+        _objectService.DeleteObject(CurrentSlide, SelectedObject);
+        SelectedObject = null;
+        UpdateSelectedObjectTriggers();
+        ValidateProject();
+        MarkModified();
     }
 
     [RelayCommand(CanExecute = nameof(HasProject))]
@@ -802,48 +728,6 @@ public partial class MainWindowViewModel : ViewModelBase
         OnPropertyChanged(nameof(WindowTitle));
     }
 
-    private SlideObject? CloneObject(SlideObject source)
-    {
-        return source switch
-        {
-            TextObject text => new TextObject
-            {
-                Name = text.Name,
-                X = text.X,
-                Y = text.Y,
-                Width = text.Width,
-                Height = text.Height,
-                Visible = text.Visible,
-                Text = text.Text,
-                FontFamily = text.FontFamily,
-                FontSize = text.FontSize,
-                Color = text.Color
-            },
-            ImageObject image => new ImageObject
-            {
-                Name = image.Name,
-                X = image.X,
-                Y = image.Y,
-                Width = image.Width,
-                Height = image.Height,
-                Visible = image.Visible,
-                SourcePath = image.SourcePath,
-                MaintainAspectRatio = image.MaintainAspectRatio
-            },
-            ButtonObject button => new ButtonObject
-            {
-                Name = button.Name,
-                X = button.X,
-                Y = button.Y,
-                Width = button.Width,
-                Height = button.Height,
-                Visible = button.Visible,
-                Label = button.Label,
-                Enabled = button.Enabled
-            },
-            _ => null
-        };
-    }
 
     // Edit Menu Commands
     public bool HasSelectedObject => SelectedObject != null;
@@ -868,8 +752,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (SelectedObject == null) return;
         // TODO: Implement clipboard in Phase 6
-        // For now, just delete the object
-        Copy();
+        // For now, just delete the object (Copy() is not implemented yet)
         DeleteSelectedObject();
     }
 

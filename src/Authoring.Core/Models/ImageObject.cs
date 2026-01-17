@@ -18,4 +18,18 @@ public class ImageObject : SlideObject
     /// </summary>
     [JsonPropertyName("maintainAspectRatio")]
     public bool MaintainAspectRatio { get; set; } = true;
+
+    /// <summary>
+    /// Creates a shallow copy of this ImageObject.
+    /// </summary>
+    public override object Clone()
+    {
+        var clone = new ImageObject
+        {
+            SourcePath = SourcePath,
+            MaintainAspectRatio = MaintainAspectRatio
+        };
+        CopyBasePropertiesTo(clone);
+        return clone;
+    }
 }

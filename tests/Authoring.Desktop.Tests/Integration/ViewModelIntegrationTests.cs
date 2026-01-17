@@ -102,8 +102,8 @@ public class ViewModelIntegrationTests
         viewModel.DeleteSlideCommand.Execute(null);
 
         // Assert
-        Assert.Equal(1, project.Slides.Count);
-        Assert.Equal(1, viewModel.Slides.Count);
+        Assert.Single(project.Slides);
+        Assert.Single(viewModel.Slides);
     }
 
     [Fact]

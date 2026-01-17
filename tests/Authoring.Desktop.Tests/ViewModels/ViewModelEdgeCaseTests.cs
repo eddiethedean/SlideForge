@@ -55,7 +55,7 @@ public class ViewModelEdgeCaseTests
     }
 
     [Fact]
-    public void DeleteSelectedObject_ObjectNotInBaseLayer_DoesNotRemove()
+    public void DeleteSelectedObject_ObjectNotInBaseLayer_RemovesFromAnyLayer()
     {
         // Arrange
         var mockService = new Mock<IProjectService>();
@@ -72,14 +72,16 @@ public class ViewModelEdgeCaseTests
         
         project.AddSlide(slide);
         viewModel.CurrentProject = project;
+        viewModel.CurrentSlide = slide;
         viewModel.SelectedObject = textObject;
 
         // Act
         viewModel.DeleteSelectedObject();
 
         // Assert
-        // Object should still be in the other layer (DeleteSelectedObject only removes from base layer)
-        Assert.Single(otherLayer.Objects);
+        // Object should be removed from whichever layer it's in
+        Assert.Empty(otherLayer.Objects);
+        Assert.Null(viewModel.SelectedObject);
     }
 
     [Fact]

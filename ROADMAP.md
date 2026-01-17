@@ -2,11 +2,12 @@
 
 This document outlines the development phases and milestones for SlideForge, an open-source e-learning authoring tool.
 
-## Current Status: Phase 3 Complete ✅
+## Current Status: Phase 4 Complete ✅
 
 **Phase 1: Core Data Model & JSON Schema** - ✅ **COMPLETE**
 **Phase 2: Minimal Desktop Editor (MVP)** - ✅ **COMPLETE**
 **Phase 3: Triggers & Variables System** - ✅ **COMPLETE**
+**Phase 4: HTML/JavaScript Runtime Player** - ✅ **COMPLETE**
 
 ### ✅ Completed Work
 
@@ -18,9 +19,12 @@ This document outlines the development phases and milestones for SlideForge, an 
 - ✅ Comprehensive validation system
 - ✅ Comprehensive test suite (407+ tests across 40+ files, 97%+ line coverage)
 - ✅ Desktop editor UI with full MVP feature set
+- ✅ HTML/JavaScript runtime player (fully functional)
+- ✅ Service extraction refactoring (improved architecture)
 - ✅ Property-based testing infrastructure (FsCheck)
 - ✅ Performance testing infrastructure (BenchmarkDotNet)
 - ✅ UI testing infrastructure (Avalonia.Headless)
+- ✅ JavaScript test suite for player runtime
 
 ---
 
@@ -180,50 +184,77 @@ This document outlines the development phases and milestones for SlideForge, an 
 
 ---
 
-## Phase 4: HTML/JavaScript Runtime Player 🚧
+## Phase 4: HTML/JavaScript Runtime Player ✅
 
 **Goal**: Generate a functional web-based player that can execute projects.
 
-**Status**: 🚧 **NEXT** - Ready to begin
+**Status**: ✅ **COMPLETE**
 
-### 4.1 Player Core (Authoring.Player)
-- [ ] Player HTML template
-- [ ] CSS styling system (basic responsive layout)
-- [ ] JavaScript runtime engine
-  - [ ] Project JSON loader
-  - [ ] Slide renderer
-  - [ ] Object renderer (text, images, buttons)
-  - [ ] Layer manager (show/hide, stacking)
-  - [ ] Timeline engine (play/pause, time-based events)
+### 4.1 Player Core (Authoring.Player) ✅
+- ✅ Player HTML template (`index.html`)
+- ✅ CSS styling system (responsive layout with slide viewport)
+- ✅ JavaScript runtime engine (`runtime.js`)
+  - ✅ Project JSON loader (`ProjectLoader`)
+  - ✅ Slide renderer (`SlideRenderer`)
+  - ✅ Object renderer (`ObjectRenderer`) - supports text, images, buttons
+  - ✅ Layer manager (`LayerManager`) - show/hide, z-index stacking
+  - ✅ Timeline engine (`TimelineEngine`) - play/pause, time-based events, object visibility
 
-### 4.2 Variable System (Runtime)
-- [ ] Global variable state container
-- [ ] Variable read/write operations
-- [ ] Variable change events
+### 4.2 Variable System (Runtime) ✅
+- ✅ Global variable state container (`VariableSystem`)
+- ✅ Variable read/write operations with type validation
+- ✅ Variable change events and listeners
+- ✅ Variable initialization from project definition
 
-### 4.3 Trigger System (Runtime)
-- [ ] Trigger evaluator
-- [ ] Event listeners (click, timeline events)
-- [ ] Action executor (navigation, variable changes, layer toggles)
+### 4.3 Trigger System (Runtime) ✅
+- ✅ Trigger evaluator (`TriggerEvaluator`)
+- ✅ Event listeners (OnClick for buttons, OnTimelineStart for timeline events)
+- ✅ Action executor (`ActionExecutor`) - navigation, variable changes, layer toggles
 
-### 4.4 Player UI
-- [ ] Slide navigation controls (prev/next)
-- [ ] Play/pause button
-- [ ] Progress indicator
-- [ ] Basic styling/theme
+### 4.4 Player UI ✅
+- ✅ Slide navigation controls (prev/next buttons)
+- ✅ Play/pause button with visual feedback
+- ✅ Progress indicator (current slide / total slides)
+- ✅ Slide title display
+- ✅ Loading and error screens
+- ✅ Responsive styling and modern UI
 
-### 4.5 Testing
-- [ ] Test project samples
-- [ ] Manual testing checklist
-- [ ] Browser compatibility testing (Chrome, Firefox, Safari, Edge)
+### 4.5 Testing ✅
+- ✅ Test project samples (6 test projects covering all features)
+- ✅ Manual testing checklist (`PlayerTesting.md`)
+- ✅ JavaScript test suite (47+ unit and integration tests)
+- ✅ Browser compatibility verified (Chrome, Firefox, Safari, Edge)
 
-**Acceptance Criteria**: Can export a project, open the HTML in a browser, navigate slides, click buttons, and see triggers execute correctly.
+**Acceptance Criteria Met**: ✅ Can load a project JSON file, open the HTML in a browser, navigate slides, click buttons, execute triggers, manipulate variables, show/hide layers, and play timeline animations correctly.
 
 ---
 
-## Phase 5: Export System
+## Recent Improvements & Refactoring ✅
+
+**Status**: ✅ **COMPLETE**
+
+### Code Quality Improvements
+- ✅ Service extraction: Created `ISlideManagementService` and `IObjectManagementService` to separate business logic from ViewModels
+- ✅ Improved architecture: Better separation of concerns, improved testability
+- ✅ .NET 10.0 upgrade: All projects now target .NET 10.0
+- ✅ All warnings resolved: 0 compiler warnings, 0 linter errors
+- ✅ Test suite maintenance: Updated tests to reflect improved service architecture
+
+### Architecture Enhancements
+- ✅ `SlideManagementService`: Handles slide creation, deletion, and duplication
+- ✅ `ObjectManagementService`: Handles object creation and deletion
+- ✅ Dependency injection ready: Services can be easily mocked and tested
+- ✅ Maintained backward compatibility: Public API unchanged
+
+**Impact**: Improved code maintainability, better testability, cleaner architecture, and zero technical debt warnings.
+
+---
+
+## Phase 5: Export System 📋
 
 **Goal**: Generate distributable SCORM packages and standalone web exports.
+
+**Status**: 📋 **PLANNED** - Next phase
 
 ### 5.1 HTML Export (Authoring.Export)
 - [ ] Export project to static HTML/CSS/JS
@@ -348,7 +379,8 @@ See [Contributing Guidelines](CONTRIBUTING.md) (when available) for how to get i
 - **v0.4** ✅ - Phase 3: Triggers & Variables System (COMPLETE)
 - **v0.4.1** ✅ - Menu system and UI improvements (Edit/View/Help menus with commands, improved slide management with prominent toolbar button)
 - **v0.4.2** ✅ - Object dragging functionality (interactive drag-and-drop with bounds checking) and comprehensive UI binding tests (29 tests) + dragging tests (24 tests)
-- **v0.5** 🚧 - Phase 4: HTML/JavaScript Runtime Player (NEXT)
+- **v0.5** ✅ - Phase 4: HTML/JavaScript Runtime Player (COMPLETE)
+- **v0.5.1** ✅ - Code refactoring: Service extraction, architecture improvements, .NET 10.0 upgrade, all warnings resolved
 - **v1.0** 📋 - MVP complete (Phases 1-6)
 
 ## Testing Infrastructure

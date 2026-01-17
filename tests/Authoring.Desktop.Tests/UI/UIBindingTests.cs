@@ -226,7 +226,8 @@ public class UIBindingTests : AvaloniaTestBase
         // Assert
         Dispatcher.UIThread.RunJobs();
         Assert.Equal(200, textObject.X);
-        Assert.Equal(200, viewModel.SelectedObject.X);
+        Assert.NotNull(viewModel.SelectedObject);
+        Assert.Equal(200, viewModel.SelectedObject!.X);
     }
 
     [AvaloniaFact]

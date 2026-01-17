@@ -188,7 +188,7 @@ public class TriggersVariablesAdvancedIntegrationTests
         var deserializedButton = deserialized!.Slides[0].Layers[0].Objects.OfType<ButtonObject>().First();
         Assert.Equal(3, deserializedButton.Triggers.Count);
         Assert.Equal(2, deserializedButton.Triggers.Count(t => t.Type == TriggerType.OnClick));
-        Assert.Single(deserializedButton.Triggers.Where(t => t.Type == TriggerType.OnTimelineStart));
+        Assert.Single(deserializedButton.Triggers, t => t.Type == TriggerType.OnTimelineStart);
     }
 
     [Fact]

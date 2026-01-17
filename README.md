@@ -16,7 +16,7 @@ The project is organized into four main components:
 
 - **Authoring.Core** – Pure C# domain model (slides, layers, triggers, variables) ✅
 - **Authoring.Desktop** – Visual editor application (Avalonia-based) ✅ (MVP with Triggers & Variables UI)
-- **Authoring.Player** – Generated HTML/JS runtime 📋
+- **Authoring.Player** – HTML/JS runtime player ✅
 - **Authoring.Export** – SCORM and HTML exporters 📋
 
 **Status Legend:** ✅ Complete | 🚧 In Progress | 📋 Planned
@@ -65,8 +65,8 @@ dotnet test --filter "Category=UI"
 Test coverage is tracked and reported using Coverlet. Current coverage:
 - **Line Coverage**: 97.2%+
 - **Branch Coverage**: 94%+
-- **Total Tests**: 407+ across 40+ test files
-- **Test Categories**: Unit, Integration, UI, Property-Based, Performance
+- **Total Tests**: 407+ across 40+ test files (.NET) + 47+ JavaScript tests (Player)
+- **Test Categories**: Unit, Integration, UI, Property-Based, Performance, JavaScript Runtime
 
 See [TESTING.md](tests/TESTING.md) for comprehensive testing guidelines and best practices.
 
@@ -130,7 +130,29 @@ This project will be licensed under MIT or Apache 2.0 (to be determined).
 - ✅ 104+ robust tests covering edge cases, validation, and complex workflows
 - ✅ 407+ total tests (125 Core + 282 Desktop) across 40+ test files
 
-**Next:** Phase 4 - HTML/JavaScript Runtime Player
+**Phase 4 Complete ✅** - HTML/JavaScript Runtime Player is fully implemented and functional.
+
+- ✅ Complete JavaScript runtime engine (ProjectLoader, VariableSystem, LayerManager, ObjectRenderer, SlideRenderer, TimelineEngine, TriggerEvaluator, ActionExecutor, PlayerController, PlayerUIController)
+- ✅ HTML/CSS player interface with responsive design
+- ✅ Slide navigation (prev/next buttons)
+- ✅ Play/pause timeline controls
+- ✅ Progress indicator
+- ✅ Full support for all object types (Text, Image, Button)
+- ✅ Variable system with type validation and change events
+- ✅ Trigger system (OnClick, OnTimelineStart)
+- ✅ Action execution (NavigateToSlide, SetVariable, ShowLayer, HideLayer)
+- ✅ Timeline playback with object visibility control
+- ✅ Comprehensive JavaScript test suite (47+ tests)
+- ✅ Test project samples for manual testing
+- ✅ Browser compatibility verified
+
+**Recent Improvements:**
+- ✅ Code refactoring: Service extraction (SlideManagementService, ObjectManagementService)
+- ✅ Improved architecture: Better separation of concerns
+- ✅ All warnings resolved: 0 warnings, 0 errors
+- ✅ .NET 10.0 upgrade completed
+
+**Next:** Phase 5 - Export System (SCORM and HTML exporters)
 
 See the [ROADMAP.md](ROADMAP.md) for detailed progress and upcoming milestones.
 

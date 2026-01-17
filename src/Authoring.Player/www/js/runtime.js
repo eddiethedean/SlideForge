@@ -805,6 +805,7 @@ class PlayerController {
 class PlayerUIController {
     constructor(playerController) {
         this.playerController = playerController;
+        this.timelineUpdateLoopId = null;
         this.setupUI();
     }
 
@@ -849,17 +850,28 @@ class PlayerUIController {
     togglePlayPause() {
         if (this.playerController.timelineEngine.isPlaying) {
             this.playerController.timelineEngine.pause();
+            // Cancel timeline update loop
+            if (this.timelineUpdateLoopId !== null) {
+                cancelAnimationFrame(this.timelineUpdateLoopId);
+                this.timelineUpdateLoopId = null;
+            }
             this.playPauseButton.textContent = '▶ Play';
         } else {
             this.playerController.timelineEngine.play();
+            // Cancel any existing loop before starting new one
+            if (this.timelineUpdateLoopId !== null) {
+                cancelAnimationFrame(this.timelineUpdateLoopId);
+            }
             // Update timeline visibility continuously
             const updateLoop = () => {
                 if (this.playerController.timelineEngine.isPlaying) {
                     this.playerController.updateTimelineVisibility();
-                    requestAnimationFrame(updateLoop);
+                    this.timelineUpdateLoopId = requestAnimationFrame(updateLoop);
+                } else {
+                    this.timelineUpdateLoopId = null;
                 }
             };
-            requestAnimationFrame(updateLoop);
+            this.timelineUpdateLoopId = requestAnimationFrame(updateLoop);
             this.playPauseButton.textContent = '⏸ Pause';
         }
     }

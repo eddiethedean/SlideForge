@@ -293,11 +293,8 @@ public class SlideCanvasDraggingTests : AvaloniaTestBase
         newX = Math.Max(0, textObject.X + dragDeltaX);
         newY = Math.Max(0, textObject.Y + dragDeltaY);
         
-        if (slide != null)
-        {
-            newX = Math.Min(newX, slide.Width - textObject.Width);
-            newY = Math.Min(newY, slide.Height - textObject.Height);
-        }
+        newX = Math.Min(newX, slide.Width - textObject.Width);
+        newY = Math.Min(newY, slide.Height - textObject.Height);
         
         textObject.X = newX;
         textObject.Y = newY;
@@ -385,10 +382,7 @@ public class SlideCanvasDraggingTests : AvaloniaTestBase
         var dragDeltaX = 600.0; // Would put object at 1500, but object width is 500, so max X is 1920-500=1420
         var newX = Math.Max(0, textObject.X + dragDeltaX);
         
-        if (slide != null)
-        {
-            newX = Math.Min(newX, slide.Width - textObject.Width);
-        }
+        newX = Math.Min(newX, slide.Width - textObject.Width);
         
         textObject.X = newX;
         canvas.SelectedObject = textObject;

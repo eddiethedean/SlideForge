@@ -10,7 +10,7 @@ namespace Authoring.Core.Models;
 [JsonDerivedType(typeof(ImageObject), "image")]
 [JsonDerivedType(typeof(ButtonObject), "button")]
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "objectType")]
-public abstract class SlideObject
+public abstract class SlideObject : ICloneable
 {
     /// <summary>
     /// Gets or sets the unique identifier of the object.
@@ -65,4 +65,44 @@ public abstract class SlideObject
     /// </summary>
     [JsonPropertyName("triggers")]
     public List<Trigger> Triggers { get; set; } = new();
+
+    /// <summary>
+    /// Creates a shallow copy of this SlideObject.
+    /// </summary>
+    /// <returns>A new instance of the same type with copied properties.</returns>
+    public abstract object Clone();
+
+    /// <summary>
+    /// Copies common properties from this object to the target object.
+    /// </summary>
+    protected void CopyBasePropertiesTo(SlideObject target)
+    {
+        target.Id = Guid.NewGuid().ToString(); // New ID for cloned object
+        target.Name = Name;
+        target.X = X;
+        target.Y = Y;
+        target.Width = Width;
+        target.Height = Height;
+        target.Visible = Visible;
+        target.Timeline = Timeline; // Shallow copy - fine for value types
+        target.Triggers = Triggers.Select(t => new Trigger
+        {
+            Id = Guid.NewGuid().ToString(), // New ID for cloned trigger
+            Type = t.Type,
+            ObjectId = t.ObjectId,
+            Actions = t.Actions.Select(a => CloneAction(a)).ToList()
+        }).ToList();
+    }
+
+    private static Action CloneAction(Action action)
+    {
+        return action switch
+        {
+            NavigateToSlideAction nav => new NavigateToSlideAction { TargetSlideId = nav.TargetSlideId },
+            SetVariableAction setVar => new SetVariableAction { VariableId = setVar.VariableId, Value = setVar.Value },
+            ShowLayerAction show => new ShowLayerAction { LayerId = show.LayerId },
+            HideLayerAction hide => new HideLayerAction { LayerId = hide.LayerId },
+            _ => throw new NotSupportedException($"Unknown action type: {action.GetType()}")
+        };
+    }
 }

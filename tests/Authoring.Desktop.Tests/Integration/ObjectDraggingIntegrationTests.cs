@@ -175,7 +175,8 @@ public class ObjectDraggingIntegrationTests
         viewModel.OnObjectPropertyChanged();
         Assert.Equal(200, textObject.X);
         Assert.Equal(200, textObject.Y);
-        Assert.Equal(200, viewModel.SelectedObject.X);
+        Assert.NotNull(viewModel.SelectedObject);
+        Assert.Equal(200, viewModel.SelectedObject!.X);
         Assert.Equal(200, viewModel.SelectedObject.Y);
 
         // Create button object
@@ -192,7 +193,8 @@ public class ObjectDraggingIntegrationTests
         viewModel.OnObjectPropertyChanged();
         Assert.Equal(buttonNewX, buttonObject.X);
         Assert.Equal(buttonNewY, buttonObject.Y);
-        Assert.Equal(buttonNewX, viewModel.SelectedObject.X);
+        Assert.NotNull(viewModel.SelectedObject);
+        Assert.Equal(buttonNewX, viewModel.SelectedObject!.X);
         Assert.Equal(buttonNewY, viewModel.SelectedObject.Y);
 
         // Create image object
@@ -209,7 +211,8 @@ public class ObjectDraggingIntegrationTests
         viewModel.OnObjectPropertyChanged();
         Assert.Equal(imageNewX, imageObject.X);
         Assert.Equal(imageNewY, imageObject.Y);
-        Assert.Equal(imageNewX, viewModel.SelectedObject.X);
+        Assert.NotNull(viewModel.SelectedObject);
+        Assert.Equal(imageNewX, viewModel.SelectedObject!.X);
         Assert.Equal(imageNewY, viewModel.SelectedObject.Y);
     }
 
