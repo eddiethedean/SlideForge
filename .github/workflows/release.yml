@@ -285,20 +285,21 @@ SCRIPTEOF
           
           # Create wrapper script that runs the actual executable
           # This wrapper automatically removes quarantine on first run
-          printf '%s\n' \
-            '#!/bin/bash' \
-            '# Get the directory where this script is located' \
-            'DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"' \
-            'APP_DIR="$( cd "$DIR/../.." && pwd )"' \
-            '' \
-            '# Automatically remove quarantine attribute if present (Gatekeeper bypass)' \
-            'if [ -n "$(xattr -l "$APP_DIR" 2>/dev/null | grep com.apple.quarantine)" ]; then' \
-            '  echo "Removing Gatekeeper quarantine..."' \
-            '  xattr -dr com.apple.quarantine "$APP_DIR" 2>/dev/null || true' \
-            'fi' \
-            '' \
-            '# Run the actual executable' \
-            'exec "$DIR/Authoring.Desktop" "$@"' > "$WRAPPER_SCRIPT"
+          cat > "$WRAPPER_SCRIPT" << 'WRAPPEREOF'
+#!/bin/bash
+# Get the directory where this script is located
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+APP_DIR="$( cd "$DIR/../.." && pwd )"
+
+# Automatically remove quarantine attribute if present (Gatekeeper bypass)
+if [ -n "$(xattr -l "$APP_DIR" 2>/dev/null | grep com.apple.quarantine)" ]; then
+  echo "Removing Gatekeeper quarantine..."
+  xattr -dr com.apple.quarantine "$APP_DIR" 2>/dev/null || true
+fi
+
+# Run the actual executable
+exec "$DIR/Authoring.Desktop" "$@"
+WRAPPEREOF
           
           chmod +x "$WRAPPER_SCRIPT"
           
