@@ -48,9 +48,9 @@
         <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" BorderBrush="LightGray" BorderThickness="0,0,0,1" Background="#F0F0F0">
             <StackPanel Orientation="Horizontal" Margin="5" Spacing="5">
                 <TextBlock Text="Tools:" VerticalAlignment="Center" Margin="5,0" Foreground="Black"/>
-                <Button Content="Text" Command="{Binding SelectToolCommand}" CommandParameter="Text" MinWidth="60"/>
-                <Button Content="Image" Command="{Binding SelectToolCommand}" CommandParameter="Image" MinWidth="60"/>
-                <Button Content="Button" Command="{Binding SelectToolCommand}" CommandParameter="Button" MinWidth="60"/>
+                <Button Content="Text" Command="{Binding SelectToolCommand}" CommandParameter="Text" MinWidth="60" Foreground="Black"/>
+                <Button Content="Image" Command="{Binding SelectToolCommand}" CommandParameter="Image" MinWidth="60" Foreground="Black"/>
+                <Button Content="Button" Command="{Binding SelectToolCommand}" CommandParameter="Button" MinWidth="60" Foreground="Black"/>
             </StackPanel>
         </Border>
 
@@ -63,7 +63,7 @@
                     <ListBox Grid.Row="1" ItemsSource="{Binding Slides}" SelectedItem="{Binding CurrentSlide}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Title}"/>
+                                <TextBlock Text="{Binding Title}" Foreground="Black"/>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
@@ -82,8 +82,8 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Grid ColumnDefinitions="Auto,*,Auto">
-                                    <CheckBox Grid.Column="0" IsChecked="{Binding Visible, Mode=TwoWay}" Margin="5,0"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center"/>
+                                    <CheckBox Grid.Column="0" IsChecked="{Binding Visible, Mode=TwoWay}" Margin="5,0" Foreground="Black"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center" Foreground="Black"/>
                                 </Grid>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
@@ -137,7 +137,7 @@
                             <TextBlock Grid.Row="0" Grid.Column="1" Text="Height:" Foreground="Black"/>
                             <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding SelectedObject.Height, Mode=TwoWay}" Minimum="10" ValueChanged="OnPropertyChanged"/>
                         </Grid>
-                        <CheckBox Content="Visible" IsChecked="{Binding SelectedObject.Visible, Mode=TwoWay}" IsCheckedChanged="OnPropertyChanged"/>
+                        <CheckBox Content="Visible" IsChecked="{Binding SelectedObject.Visible, Mode=TwoWay}" IsCheckedChanged="OnPropertyChanged" Foreground="Black"/>
                         
                         <!-- TextObject specific properties -->
                         <StackPanel IsVisible="{Binding SelectedObject, Converter={StaticResource SlideObjectType}, ConverterParameter=Text}" Spacing="5">
@@ -157,7 +157,7 @@
                             <TextBlock Text="Button Properties" FontWeight="SemiBold" Foreground="Black"/>
                             <TextBlock Text="Label:" Foreground="Black"/>
                             <TextBox Text="{Binding SelectedButtonObject.Label, Mode=TwoWay}"/>
-                            <CheckBox Content="Enabled" IsChecked="{Binding SelectedButtonObject.Enabled, Mode=TwoWay}"/>
+                            <CheckBox Content="Enabled" IsChecked="{Binding SelectedButtonObject.Enabled, Mode=TwoWay}" Foreground="Black"/>
                         </StackPanel>
                         
                         <!-- ImageObject specific properties -->
@@ -169,12 +169,12 @@
                                 <TextBox Grid.Column="0" Text="{Binding SelectedImageObject.SourcePath, Mode=TwoWay}" Margin="0,0,5,0"/>
                                 <Button Grid.Column="1" Content="Browse..." Click="OnBrowseImageClick"/>
                             </Grid>
-                            <CheckBox Content="Maintain Aspect Ratio" IsChecked="{Binding SelectedImageObject.MaintainAspectRatio, Mode=TwoWay}"/>
+                            <CheckBox Content="Maintain Aspect Ratio" IsChecked="{Binding SelectedImageObject.MaintainAspectRatio, Mode=TwoWay}" Foreground="Black"/>
                         </StackPanel>
                     </StackPanel>
 
                     <!-- No selection message -->
-                    <TextBlock Text="No selection" Foreground="Gray" IsVisible="{Binding SelectedObject, Converter={StaticResource NotNullToBool}, ConverterParameter=inverse}"/>
+                    <TextBlock Text="No selection" Foreground="#333333" IsVisible="{Binding SelectedObject, Converter={StaticResource NotNullToBool}, ConverterParameter=inverse}"/>
                 </StackPanel>
             </ScrollViewer>
         </Border>
@@ -196,7 +196,7 @@
                                 Command="{Binding ToggleObjectTimelineCommand}" 
                                 HorizontalAlignment="Left"/>
                     </StackPanel>
-                    <TextBlock Text="Select an object to edit timeline" IsVisible="{Binding SelectedObject, Converter={StaticResource NotNullToBool}, ConverterParameter=inverse}" Foreground="#666666"/>
+                    <TextBlock Text="Select an object to edit timeline" IsVisible="{Binding SelectedObject, Converter={StaticResource NotNullToBool}, ConverterParameter=inverse}" Foreground="#333333"/>
                 </StackPanel>
             </Grid>
         </Border>

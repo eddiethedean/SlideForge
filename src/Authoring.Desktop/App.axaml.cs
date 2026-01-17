@@ -29,7 +29,13 @@ public partial class App : Application
             var projectService = new ProjectService();
             
             var mainWindow = new MainWindow();
-            mainWindow.DataContext = new MainWindowViewModel(projectService, mainWindow);
+            var viewModel = new MainWindowViewModel(projectService, mainWindow);
+            
+            // Auto-create a new project on startup so buttons are enabled
+            var initialProject = projectService.CreateNewProject("Untitled Project");
+            viewModel.CurrentProject = initialProject;
+            
+            mainWindow.DataContext = viewModel;
             desktop.MainWindow = mainWindow;
         }
 
