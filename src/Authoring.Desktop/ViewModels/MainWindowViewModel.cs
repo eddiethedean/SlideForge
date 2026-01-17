@@ -796,6 +796,16 @@ public partial class MainWindowViewModel : ViewModelBase
 
     // Help Menu Commands
     [RelayCommand]
+    private async Task CheckForUpdatesAsync()
+    {
+        if (_mainWindow == null) return;
+
+        var updateService = new UpdateService();
+        var dialog = new UpdateDialog(updateService);
+        await dialog.ShowDialog(_mainWindow);
+    }
+
+    [RelayCommand]
     private async Task AboutAsync()
     {
         if (_mainWindow == null) return;

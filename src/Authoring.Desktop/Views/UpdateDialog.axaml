@@ -1,0 +1,71 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Authoring.Desktop.ViewModels"
+        xmlns:conv="using:Authoring.Desktop.Converters"
+        x:Class="Authoring.Desktop.Views.UpdateDialog"
+        x:DataType="vm:UpdateDialogViewModel"
+        Title="Check for Updates"
+        Width="500" Height="400"
+        WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <conv:NotNullToBoolConverter x:Key="NotNullToBool"/>
+    </Window.Resources>
+    
+    <StackPanel Margin="20" Spacing="15">
+        <TextBlock Text="SlideForge Update Checker" FontSize="18" FontWeight="Bold" Foreground="Black"/>
+        
+        <TextBlock Text="{Binding CurrentVersion, StringFormat='Current Version: {0}'}" Foreground="Black"/>
+        
+        <Button Content="Check for Updates" 
+                Command="{Binding CheckForUpdatesCommand}"
+                IsEnabled="{Binding !IsChecking}"
+                HorizontalAlignment="Stretch"/>
+        
+        <ProgressBar IsIndeterminate="{Binding IsChecking}" 
+                     IsVisible="{Binding IsChecking}"
+                     Height="20"/>
+        
+        <TextBlock Text="{Binding ErrorMessage}" 
+                   Foreground="Red"
+                   TextWrapping="Wrap"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource NotNullToBool}}"/>
+        
+        <Border IsVisible="{Binding UpdateAvailable}"
+                BorderBrush="Gray"
+                BorderThickness="1"
+                Padding="10"
+                CornerRadius="5">
+            <StackPanel Spacing="10">
+                <TextBlock Text="{Binding UpdateVersion, StringFormat='Update Available: Version {0}'}" 
+                           FontWeight="Bold"
+                           Foreground="Black"/>
+                
+                <TextBlock Text="{Binding FileSize, StringFormat='Size: {0:N0} bytes'}" 
+                           Foreground="Black"
+                           IsVisible="{Binding FileSize, Converter={StaticResource NotNullToBool}}"/>
+                
+                <ScrollViewer MaxHeight="150">
+                    <TextBlock Text="{Binding ReleaseNotes}" 
+                               TextWrapping="Wrap"
+                               Foreground="Black"/>
+                </ScrollViewer>
+                
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Button Content="Download and Install" 
+                            Command="{Binding DownloadAndInstallCommand}"
+                            IsEnabled="{Binding !IsDownloading}"/>
+                    
+                    <ProgressBar Value="{Binding DownloadProgress}" 
+                                 Maximum="100"
+                                 Width="200"
+                                 IsVisible="{Binding IsDownloading}"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        
+        <Button Content="Close" 
+                Command="{Binding CloseCommand}"
+                HorizontalAlignment="Right"
+                Margin="0,10,0,0"/>
+    </StackPanel>
+</Window>

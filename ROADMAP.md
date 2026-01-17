@@ -17,10 +17,12 @@ This document outlines the development phases and milestones for SlideForge, an 
 - ✅ Complete domain model implementation
 - ✅ JSON serialization with polymorphic type support
 - ✅ Comprehensive validation system
-- ✅ Comprehensive test suite (407+ tests across 40+ files, 97%+ line coverage)
+- ✅ Comprehensive test suite (437+ tests across 40+ files, 97%+ line coverage)
 - ✅ Desktop editor UI with full MVP feature set
 - ✅ HTML/JavaScript runtime player (fully functional)
 - ✅ Service extraction refactoring (improved architecture)
+- ✅ Auto-update system with GitHub Releases integration
+- ✅ CI/CD pipeline with multi-platform builds and releases
 - ✅ Property-based testing infrastructure (FsCheck)
 - ✅ Performance testing infrastructure (BenchmarkDotNet)
 - ✅ UI testing infrastructure (Avalonia.Headless)
@@ -233,6 +235,26 @@ This document outlines the development phases and milestones for SlideForge, an 
 
 **Status**: ✅ **COMPLETE**
 
+### Auto-Update System ✅
+- ✅ GitHub Releases API integration for update checking
+- ✅ Update service with version comparison logic
+- ✅ Download progress tracking
+- ✅ Platform-specific asset selection (Windows, macOS, Linux x64/ARM64)
+- ✅ Update dialog UI with release notes display
+- ✅ Automatic installation and restart capability
+- ✅ Comprehensive test suite (57 update-related tests)
+
+### CI/CD Pipeline ✅
+- ✅ GitHub Actions workflow for automated builds
+- ✅ Multi-platform support: Windows (x64, ARM64), macOS (x64, ARM64), Linux (x64, ARM64)
+- ✅ Automated releases on version tags
+- ✅ Self-contained single-file executables
+- ✅ Test execution before releases
+
+### Code Quality Improvements
+
+**Status**: ✅ **COMPLETE**
+
 ### Code Quality Improvements
 - ✅ Service extraction: Created `ISlideManagementService` and `IObjectManagementService` to separate business logic from ViewModels
 - ✅ Improved architecture: Better separation of concerns, improved testability
@@ -381,13 +403,14 @@ See [Contributing Guidelines](CONTRIBUTING.md) (when available) for how to get i
 - **v0.4.2** ✅ - Object dragging functionality (interactive drag-and-drop with bounds checking) and comprehensive UI binding tests (29 tests) + dragging tests (24 tests)
 - **v0.5** ✅ - Phase 4: HTML/JavaScript Runtime Player (COMPLETE)
 - **v0.5.1** ✅ - Code refactoring: Service extraction, architecture improvements, .NET 10.0 upgrade, all warnings resolved
+- **v0.5.2** ✅ - Auto-update system: GitHub Releases integration, CI/CD pipeline with multi-platform builds (Windows, macOS, Linux x64/ARM64), comprehensive update feature tests (57 tests)
 - **v1.0** 📋 - MVP complete (Phases 1-6)
 
 ## Testing Infrastructure
 
 ### Test Organization
 - **40+ test files** organized by category (Unit, Integration, UI, Property-Based, Performance)
-- **407+ tests** covering all components (125 Core + 282 Desktop)
+- **437+ tests** covering all components (125 Core + 312 Desktop)
 - **Test builders** (ProjectBuilder, SlideBuilder, ObjectBuilder) for fluent test data creation
 - **Assertion extensions** for cleaner test assertions
 - **Test data management** with sample project files
