@@ -1,0 +1,112 @@
+{
+  "id": "test-complex-project",
+  "name": "Complex Test Project",
+  "version": "1.0.0",
+  "author": "Test Author",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "modifiedAt": "2024-01-01T00:00:00Z",
+  "variables": [
+    {
+      "id": "score",
+      "name": "Score",
+      "type": "Number",
+      "defaultValue": 0
+    },
+    {
+      "id": "completed",
+      "name": "Completed",
+      "type": "Boolean",
+      "defaultValue": false
+    }
+  ],
+  "slides": [
+    {
+      "id": "slide-1",
+      "title": "Introduction",
+      "width": 1920,
+      "height": 1080,
+      "layers": [
+        {
+          "id": "layer-1",
+          "name": "Base Layer",
+          "visible": true,
+          "objects": [
+            {
+              "objectType": "text",
+              "id": "text-1",
+              "name": "Welcome Text",
+              "x": 100,
+              "y": 100,
+              "width": 800,
+              "height": 200,
+              "visible": true,
+              "text": "Welcome to the Course",
+              "fontFamily": "Arial",
+              "fontSize": 24,
+              "color": "#000000",
+              "triggers": []
+            },
+            {
+              "objectType": "button",
+              "id": "button-1",
+              "name": "Next Button",
+              "x": 800,
+              "y": 500,
+              "width": 200,
+              "height": 50,
+              "visible": true,
+              "label": "Next",
+              "enabled": true,
+              "triggers": [
+                {
+                  "id": "trigger-1",
+                  "type": "OnClick",
+                  "objectId": null,
+                  "actions": [
+                    {
+                      "actionType": "navigateToSlide",
+                      "targetSlideId": "slide-2"
+                    },
+                    {
+                      "actionType": "setVariable",
+                      "variableId": "score",
+                      "value": 10
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "slide-2",
+      "title": "Content",
+      "width": 1920,
+      "height": 1080,
+      "layers": [
+        {
+          "id": "layer-2",
+          "name": "Base Layer",
+          "visible": true,
+          "objects": [
+            {
+              "objectType": "image",
+              "id": "image-1",
+              "name": "Content Image",
+              "x": 200,
+              "y": 200,
+              "width": 500,
+              "height": 300,
+              "visible": true,
+              "sourcePath": "content.png",
+              "maintainAspectRatio": true,
+              "triggers": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="Authoring.Desktop.Views.Controls.SlideCanvas"
+             Background="LightGray">
+
+    <Border BorderBrush="Black" BorderThickness="1" Background="White" Margin="20">
+        <Canvas x:Name="MainCanvas" Background="White">
+            <!-- Objects will be added here programmatically -->
+        </Canvas>
+    </Border>
+</UserControl>

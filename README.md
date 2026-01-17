@@ -15,7 +15,7 @@ An open-source, extensible e-learning authoring tool that replicates the core wo
 The project is organized into four main components:
 
 - **Authoring.Core** – Pure C# domain model (slides, layers, triggers, variables) ✅
-- **Authoring.Desktop** – Visual editor application (Avalonia-based) 🚧
+- **Authoring.Desktop** – Visual editor application (Avalonia-based) ✅ (MVP)
 - **Authoring.Player** – Generated HTML/JS runtime 📋
 - **Authoring.Export** – SCORM and HTML exporters 📋
 
@@ -51,12 +51,24 @@ dotnet run --project src/Authoring.Desktop/Authoring.Desktop.csproj
 ### Running Tests
 
 ```bash
+# Run all tests
 dotnet test
+
+# Run tests with coverage
+dotnet test --collect:"XPlat Code Coverage"
+
+# Run specific test categories
+dotnet test --filter "Category=Integration"
+dotnet test --filter "Category=UI"
 ```
 
 Test coverage is tracked and reported using Coverlet. Current coverage:
-- **Line Coverage**: 97.2%
-- **Branch Coverage**: 94.06%
+- **Line Coverage**: 97.2%+
+- **Branch Coverage**: 94%+
+- **Total Tests**: 152+ across 34 test files
+- **Test Categories**: Unit, Integration, UI, Property-Based, Performance
+
+See [TESTING.md](tests/TESTING.md) for comprehensive testing guidelines and best practices.
 
 ## MVP Feature Set
 
@@ -86,9 +98,20 @@ This project will be licensed under MIT or Apache 2.0 (to be determined).
 - ✅ Complete domain model (Project, Slide, Layer, SlideObject hierarchy, Variable, Trigger, Timeline, Actions)
 - ✅ JSON serialization with polymorphic type support
 - ✅ Comprehensive validation system
-- ✅ 85 unit tests with 97.2% line coverage
+- ✅ 152+ tests across 34 test files with extensive coverage
 
-**Next:** Phase 2 - Minimal Desktop Editor (MVP)
+**Phase 2 Complete ✅** - Minimal Desktop Editor (MVP) is implemented and functional.
+
+- ✅ Project management (New, Open, Save, Save As)
+- ✅ Slide management (Add, Delete, Duplicate)
+- ✅ Layer management (Add, Delete, Show/Hide)
+- ✅ Canvas-based visual editing
+- ✅ Object creation and editing (Text, Image, Button)
+- ✅ Property panels for slide and object configuration
+- ✅ Basic timeline support
+- ✅ Comprehensive test suite for desktop components
+
+**Next:** Phase 3 - Triggers & Variables System UI
 
 See the [ROADMAP.md](ROADMAP.md) for detailed progress and upcoming milestones.
 

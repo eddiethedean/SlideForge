@@ -4,9 +4,11 @@ using Authoring.Core.Validation;
 
 namespace Authoring.Core.Tests.Integration;
 
+[Trait("Category", "Integration")]
 public class ProjectIntegrationTests
 {
     [Fact]
+    [Trait("Category", "Integration")]
     public void CreateModifySerializeDeserialize_CompleteWorkflow_Succeeds()
     {
         // Arrange & Act - Create a complete project

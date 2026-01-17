@@ -1,20 +1,204 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Authoring.Desktop.ViewModels"
+        xmlns:local="using:Authoring.Desktop.Views.Controls"
+        xmlns:conv="using:Authoring.Desktop.Converters"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
         x:Class="Authoring.Desktop.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="Authoring.Desktop">
+        Title="{Binding WindowTitle}"
+        Width="1200" Height="800"
+        WindowStartupLocation="CenterScreen">
+    
+    <Window.Resources>
+        <conv:InverseBoolConverter x:Key="InverseBool"/>
+        <conv:NotNullToBoolConverter x:Key="NotNullToBool"/>
+        <conv:SlideObjectTypeConverter x:Key="SlideObjectType"/>
+    </Window.Resources>
 
     <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Grid RowDefinitions="Auto,Auto,*,Auto" ColumnDefinitions="200,*,300">
+        <!-- Menu Bar -->
+        <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New" Command="{Binding NewProjectCommand}"/>
+                <MenuItem Header="_Open..." Command="{Binding OpenProjectCommand}"/>
+                <Separator/>
+                <MenuItem Header="_Save" Command="{Binding SaveProjectCommand}"/>
+                <MenuItem Header="Save _As..." Command="{Binding SaveAsProjectCommand}"/>
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <!-- Placeholder for future edit commands -->
+            </MenuItem>
+            <MenuItem Header="_View">
+                <!-- Placeholder for future view commands -->
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <!-- Placeholder for future help commands -->
+            </MenuItem>
+        </Menu>
 
+        <!-- Toolbar -->
+        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" BorderBrush="LightGray" BorderThickness="0,0,0,1" Background="WhiteSmoke">
+            <StackPanel Orientation="Horizontal" Margin="5" Spacing="5">
+                <TextBlock Text="Tools:" VerticalAlignment="Center" Margin="5,0"/>
+                <Button Content="Text" Command="{Binding SelectToolCommand}" CommandParameter="Text" MinWidth="60"/>
+                <Button Content="Image" Command="{Binding SelectToolCommand}" CommandParameter="Image" MinWidth="60"/>
+                <Button Content="Button" Command="{Binding SelectToolCommand}" CommandParameter="Button" MinWidth="60"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Left Panel: Slide List and Layers -->
+        <Grid Grid.Row="2" Grid.Column="0" RowDefinitions="*,*">
+            <!-- Slide List -->
+            <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="0,0,1,1">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <TextBlock Grid.Row="0" Text="Slides" FontWeight="Bold" Margin="10,10,10,5"/>
+                    <ListBox Grid.Row="1" ItemsSource="{Binding Slides}" SelectedItem="{Binding CurrentSlide}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Title}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="5" Spacing="5">
+                        <Button Content="Add" Command="{Binding AddSlideCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                        <Button Content="Delete" Command="{Binding DeleteSlideCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Layer Panel -->
+            <Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="0,0,1,0">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <TextBlock Grid.Row="0" Text="Layers" FontWeight="Bold" Margin="10,10,10,5"/>
+                    <ListBox x:Name="LayerList" Grid.Row="1" ItemsSource="{Binding Layers}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <CheckBox Grid.Column="0" IsChecked="{Binding Visible, Mode=TwoWay}" Margin="5,0"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="5" Spacing="5">
+                        <Button Content="Add" Command="{Binding AddLayerCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                        <Button Content="Delete" Command="{Binding DeleteLayerCommand}" CommandParameter="{Binding #LayerList.SelectedItem}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Center: Canvas Area -->
+        <Border Grid.Row="2" Grid.Column="1" Background="White">
+            <local:SlideCanvas x:Name="SlideCanvas"
+                              CurrentSlide="{Binding CurrentSlide}"
+                              SelectedObject="{Binding SelectedObject}"/>
+        </Border>
+
+        <!-- Right Panel: Properties -->
+        <Border Grid.Row="2" Grid.Column="2" BorderBrush="LightGray" BorderThickness="1,0,0,0">
+            <ScrollViewer>
+                <StackPanel Margin="10" Spacing="10">
+                    <TextBlock Text="Properties" FontWeight="Bold"/>
+                    
+                    <!-- Slide Properties (when no object selected) -->
+                    <StackPanel IsVisible="{Binding SelectedObject, Converter={StaticResource NotNullToBool}, ConverterParameter=inverse}" Spacing="5">
+                        <TextBlock Text="{Binding CurrentSlide.Title, StringFormat='Slide: {0}'}" FontWeight="SemiBold"/>
+                        <TextBlock Text="Title:"/>
+                        <TextBox Text="{Binding CurrentSlide.Title, Mode=TwoWay}" IsEnabled="{Binding HasProject}"/>
+                        <TextBlock Text="Width:"/>
+                        <NumericUpDown Value="{Binding CurrentSlide.Width, Mode=TwoWay}" Minimum="100" Maximum="10000" IsEnabled="{Binding HasProject}"/>
+                        <TextBlock Text="Height:"/>
+                        <NumericUpDown Value="{Binding CurrentSlide.Height, Mode=TwoWay}" Minimum="100" Maximum="10000" IsEnabled="{Binding HasProject}"/>
+                    </StackPanel>
+
+                    <!-- Object Properties (when object selected) -->
+                    <StackPanel IsVisible="{Binding SelectedObject, Converter={StaticResource NotNullToBool}}" Spacing="5">
+                        <TextBlock Text="{Binding SelectedObject.Name, StringFormat='Object: {0}'}" FontWeight="SemiBold"/>
+                        <TextBlock Text="Position"/>
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="5">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="X:"/>
+                            <NumericUpDown Grid.Row="1" Grid.Column="0" Value="{Binding SelectedObject.X, Mode=TwoWay}" Minimum="0" ValueChanged="OnPropertyChanged"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Y:"/>
+                            <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding SelectedObject.Y, Mode=TwoWay}" Minimum="0" ValueChanged="OnPropertyChanged"/>
+                        </Grid>
+                        <TextBlock Text="Size"/>
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="5">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Width:"/>
+                            <NumericUpDown Grid.Row="1" Grid.Column="0" Value="{Binding SelectedObject.Width, Mode=TwoWay}" Minimum="10" ValueChanged="OnPropertyChanged"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Height:"/>
+                            <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding SelectedObject.Height, Mode=TwoWay}" Minimum="10" ValueChanged="OnPropertyChanged"/>
+                        </Grid>
+                        <CheckBox Content="Visible" IsChecked="{Binding SelectedObject.Visible, Mode=TwoWay}" IsCheckedChanged="OnPropertyChanged"/>
+                        
+                        <!-- TextObject specific properties -->
+                        <StackPanel IsVisible="{Binding SelectedObject, Converter={StaticResource SlideObjectType}, ConverterParameter=Text}" Spacing="5">
+                            <Separator/>
+                            <TextBlock Text="Text Properties" FontWeight="SemiBold"/>
+                            <TextBlock Text="Text:"/>
+                            <TextBox Text="{Binding SelectedTextObject.Text, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap"/>
+                            <TextBlock Text="Font Size:"/>
+                            <NumericUpDown Value="{Binding SelectedTextObject.FontSize, Mode=TwoWay}" Minimum="6" Maximum="200"/>
+                            <TextBlock Text="Color:"/>
+                            <TextBox Text="{Binding SelectedTextObject.Color, Mode=TwoWay}" Watermark="#000000"/>
+                        </StackPanel>
+                        
+                        <!-- ButtonObject specific properties -->
+                        <StackPanel IsVisible="{Binding SelectedObject, Converter={StaticResource SlideObjectType}, ConverterParameter=Button}" Spacing="5">
+                            <Separator/>
+                            <TextBlock Text="Button Properties" FontWeight="SemiBold"/>
+                            <TextBlock Text="Label:"/>
+                            <TextBox Text="{Binding SelectedButtonObject.Label, Mode=TwoWay}"/>
+                            <CheckBox Content="Enabled" IsChecked="{Binding SelectedButtonObject.Enabled, Mode=TwoWay}"/>
+                        </StackPanel>
+                        
+                        <!-- ImageObject specific properties -->
+                        <StackPanel IsVisible="{Binding SelectedObject, Converter={StaticResource SlideObjectType}, ConverterParameter=Image}" Spacing="5">
+                            <Separator/>
+                            <TextBlock Text="Image Properties" FontWeight="SemiBold"/>
+                            <TextBlock Text="Source Path:"/>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBox Grid.Column="0" Text="{Binding SelectedImageObject.SourcePath, Mode=TwoWay}" Margin="0,0,5,0"/>
+                                <Button Grid.Column="1" Content="Browse..." Click="OnBrowseImageClick"/>
+                            </Grid>
+                            <CheckBox Content="Maintain Aspect Ratio" IsChecked="{Binding SelectedImageObject.MaintainAspectRatio, Mode=TwoWay}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- No selection message -->
+                    <TextBlock Text="No selection" Foreground="Gray" IsVisible="{Binding SelectedObject, Converter={StaticResource NotNullToBool}, ConverterParameter=inverse}"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Bottom: Timeline Panel -->
+        <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" BorderBrush="LightGray" BorderThickness="0,1,0,0" Height="150" Background="WhiteSmoke">
+            <Grid Margin="10" RowDefinitions="Auto,*">
+                <TextBlock Grid.Row="0" Text="Timeline" FontWeight="Bold"/>
+                <StackPanel Grid.Row="1" Spacing="5" Margin="0,10,0,0">
+                    <StackPanel IsVisible="{Binding SelectedObject, Converter={StaticResource NotNullToBool}}" Spacing="5">
+                        <TextBlock Text="Object Timeline" FontWeight="SemiBold"/>
+                        <Grid ColumnDefinitions="Auto,*,Auto,*" ColumnSpacing="10">
+                            <TextBlock Grid.Column="0" Text="Start Time:" VerticalAlignment="Center"/>
+                            <NumericUpDown Grid.Column="1" Value="{Binding SelectedObject.Timeline.StartTime, Mode=TwoWay}" Minimum="0" IsEnabled="{Binding SelectedObject.Timeline, Converter={StaticResource NotNullToBool}}"/>
+                            <TextBlock Grid.Column="2" Text="Duration:" VerticalAlignment="Center"/>
+                            <NumericUpDown Grid.Column="3" Value="{Binding SelectedObject.Timeline.Duration, Mode=TwoWay}" Minimum="0.1" IsEnabled="{Binding SelectedObject.Timeline, Converter={StaticResource NotNullToBool}}"/>
+                        </Grid>
+                        <Button Content="Toggle Timeline" 
+                                Command="{Binding ToggleObjectTimelineCommand}" 
+                                HorizontalAlignment="Left"/>
+                    </StackPanel>
+                    <TextBlock Text="Select an object to edit timeline" IsVisible="{Binding SelectedObject, Converter={StaticResource NotNullToBool}, ConverterParameter=inverse}" Foreground="Gray"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
 </Window>

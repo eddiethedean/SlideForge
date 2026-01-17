@@ -1,0 +1,25 @@
+{
+  "id": "test-minimal-project",
+  "name": "Minimal Test Project",
+  "version": "1.0.0",
+  "author": "Test Author",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "modifiedAt": "2024-01-01T00:00:00Z",
+  "variables": [],
+  "slides": [
+    {
+      "id": "slide-1",
+      "title": "Slide 1",
+      "width": 1920,
+      "height": 1080,
+      "layers": [
+        {
+          "id": "layer-1",
+          "name": "Base Layer",
+          "visible": true,
+          "objects": []
+        }
+      ]
+    }
+  ]
+}
