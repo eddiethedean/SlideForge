@@ -4,15 +4,10 @@
 
 1. **Download** the latest `SlideForge-macos-arm64.zip` (Apple Silicon) or `SlideForge-macos-x64.zip` (Intel Mac)
 2. **Extract** the ZIP file (double-click in Finder)
-3. **Open Terminal** and navigate to the extracted folder:
-   ```bash
-   cd ~/Downloads/SlideForge-macos-*/  # Adjust path as needed
-   ```
-4. **Remove quarantine** (required for Gatekeeper):
-   ```bash
-   xattr -d com.apple.quarantine Authoring.Desktop.command
-   ```
-5. **Launch** by double-clicking `Authoring.Desktop.command` in Finder
+3. **Drag `SlideForge.app` to Applications folder** (optional - you can run from anywhere)
+4. **Launch** by double-clicking `SlideForge.app`
+   - The app will automatically remove Gatekeeper quarantine on first run
+   - If macOS blocks it, right-click `SlideForge.app` → Open → Click "Open"
 
 ## Gatekeeper (Security) Note
 

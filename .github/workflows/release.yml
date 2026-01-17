@@ -208,43 +208,112 @@ jobs:
             ARCH="arm64"
           fi
           
-          # Create a .command wrapper for macOS double-click support
+          # Create .app bundle structure
+          APP_NAME="SlideForge.app"
+          APP_DIR="./SlideForge-$ARCH-$APP_NAME"
           EXEC_PATH="./publish/${{ matrix.runtime }}/Authoring.Desktop"
-          COMMAND_PATH="./publish/${{ matrix.runtime }}/Authoring.Desktop.command"
           
-          # Create wrapper script that automatically removes quarantine on first run
+          # Create directory structure
+          mkdir -p "$APP_DIR/Contents/MacOS"
+          mkdir -p "$APP_DIR/Contents/Resources"
+          
+          # Copy executable to MacOS directory
+          cp "$EXEC_PATH" "$APP_DIR/Contents/MacOS/Authoring.Desktop"
+          chmod +x "$APP_DIR/Contents/MacOS/Authoring.Desktop"
+          
+          # Create Info.plist
+          VERSION="${{ env.VERSION }}"
+          cat > "$APP_DIR/Contents/Info.plist" << PLISTEOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleExecutable</key>
+	<string>SlideForge</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.slideforge.app</string>
+	<key>CFBundleName</key>
+	<string>SlideForge</string>
+	<key>CFBundleDisplayName</key>
+	<string>SlideForge</string>
+	<key>CFBundleVersion</key>
+	<string>${VERSION}</string>
+	<key>CFBundleShortVersionString</key>
+	<string>${VERSION}</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleSignature</key>
+	<string>SLDG</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.15</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSRequiresAquaSystemAppearance</key>
+	<false/>
+</dict>
+</plist>
+PLISTEOF
+          
+          # Create PkgInfo file (optional but helps with app identification)
+          echo "APPLSLDG" > "$APP_DIR/Contents/PkgInfo"
+          
+          # Create a launcher script that removes quarantine on first run
+          cat > "$APP_DIR/Contents/MacOS/Authoring.Desktop" << 'SCRIPTEOF'
+#!/bin/bash
+# Get the directory where this script is located
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+APP_DIR="$( cd "$DIR/../.." && pwd )"
+
+# Automatically remove quarantine attribute if present (Gatekeeper bypass)
+if [ -n "$(xattr -l "$APP_DIR" 2>/dev/null | grep com.apple.quarantine)" ]; then
+  echo "Removing Gatekeeper quarantine..."
+  xattr -dr com.apple.quarantine "$APP_DIR" 2>/dev/null || true
+fi
+
+# Run the actual executable (in same directory)
+exec "$DIR/Authoring.Desktop" "$@"
+SCRIPTEOF
+          
+          # Wait, we need to copy the actual executable first, then create wrapper
+          # Let's restructure: copy executable, then create wrapper
+          ACTUAL_EXEC="$APP_DIR/Contents/MacOS/Authoring.Desktop"
+          WRAPPER_SCRIPT="$APP_DIR/Contents/MacOS/SlideForge"
+          
+          # Copy the actual .NET executable
+          cp "$EXEC_PATH" "$ACTUAL_EXEC"
+          chmod +x "$ACTUAL_EXEC"
+          
+          # Create wrapper script that runs the actual executable
+          # This wrapper automatically removes quarantine on first run
           printf '%s\n' \
             '#!/bin/bash' \
             '# Get the directory where this script is located' \
             'DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"' \
-            'cd "$DIR"' \
+            'APP_DIR="$( cd "$DIR/../.." && pwd )"' \
             '' \
             '# Automatically remove quarantine attribute if present (Gatekeeper bypass)' \
-            'if [ -n "$(xattr -l Authoring.Desktop.command 2>/dev/null | grep com.apple.quarantine)" ]; then' \
+            'if [ -n "$(xattr -l "$APP_DIR" 2>/dev/null | grep com.apple.quarantine)" ]; then' \
             '  echo "Removing Gatekeeper quarantine..."' \
-            '  xattr -d com.apple.quarantine Authoring.Desktop.command 2>/dev/null || true' \
-            '  xattr -d com.apple.quarantine Authoring.Desktop 2>/dev/null || true' \
+            '  xattr -dr com.apple.quarantine "$APP_DIR" 2>/dev/null || true' \
             'fi' \
             '' \
-            '# Run the executable' \
-            'exec ./Authoring.Desktop "$@"' > "$COMMAND_PATH"
+            '# Run the actual executable' \
+            'exec "$DIR/Authoring.Desktop" "$@"' > "$WRAPPER_SCRIPT"
           
-          # Make the wrapper executable
-          chmod +x "$COMMAND_PATH"
+          chmod +x "$WRAPPER_SCRIPT"
           
+          # Archive the .app bundle
           ARCHIVE_NAME="SlideForge-macos-$ARCH-v${{ env.VERSION }}.zip"
-          cd "./publish/${{ matrix.runtime }}"
           # zip preserves permissions when using -X flag
-          zip -X -r "../../$ARCHIVE_NAME" .
-          cd ../..
+          zip -X -r "$ARCHIVE_NAME" "$APP_DIR"
           echo "ARCHIVE_NAME=$ARCHIVE_NAME" >> $GITHUB_ENV
           
-          # Verify the archive contains both files
+          # Verify the archive contains the .app bundle
           ARCHIVE_CONTENTS=$(unzip -l "$ARCHIVE_NAME" 2>&1)
-          if echo "$ARCHIVE_CONTENTS" | grep -q "Authoring.Desktop.command" && echo "$ARCHIVE_CONTENTS" | grep -q "Authoring.Desktop"; then
-            echo "✓ Archive created successfully with both executable and .command wrapper"
+          if echo "$ARCHIVE_CONTENTS" | grep -q "$APP_NAME"; then
+            echo "✓ Archive created successfully with .app bundle"
           else
-            echo "ERROR: Archive missing required files"
+            echo "ERROR: Archive missing .app bundle"
             echo "$ARCHIVE_CONTENTS"
             exit 1
           fi
@@ -308,10 +377,10 @@ jobs:
 
             ### Installation
             - **Windows**: Extract the ZIP file and run `Authoring.Desktop.exe`
-            - **macOS**: Extract the ZIP file
-              - **First time**: Open Terminal, navigate to folder, run: `xattr -d com.apple.quarantine Authoring.Desktop.command`
-              - **Launch**: Double-click `Authoring.Desktop.command` or run `./Authoring.Desktop` from Terminal
-              - If Gatekeeper blocks it: Right-click `Authoring.Desktop.command` → Open → Click "Open" in security dialog
+            - **macOS**: Extract the ZIP file and drag `SlideForge.app` to Applications folder (or run from anywhere)
+              - **First time**: Double-click `SlideForge.app` - it will automatically remove quarantine
+              - If Gatekeeper blocks it: Right-click `SlideForge.app` → Open → Click "Open" in security dialog
+              - **Alternative**: Run `xattr -dr com.apple.quarantine SlideForge.app` in Terminal
             - **Linux**: Extract the tar.gz file and run `./Authoring.Desktop` (execute permissions are set automatically)
 
             ### Changes
