@@ -79,9 +79,14 @@ Download pre-built binaries from [GitHub Releases](https://github.com/eddiethede
 - **Windows**: Extract `SlideForge-windows-x64-v*.zip` and run `Authoring.Desktop.exe`
 - **macOS**: 
   1. Extract `SlideForge-macos-*.zip`
-  2. **Drag `SlideForge.app` to Applications folder** (or run from anywhere)
-  3. **Launch**: Double-click `SlideForge.app` - it will automatically remove quarantine on first run
-  4. **If blocked**: Right-click `SlideForge.app` → Open → Click "Open" in security dialog
+  2. **Remove Gatekeeper quarantine** (required once):
+     ```bash
+     cd /path/to/extracted/folder
+     xattr -dr com.apple.quarantine SlideForge-arm64-SlideForge.app
+     # Or for Intel: xattr -dr com.apple.quarantine SlideForge-x64-SlideForge.app
+     ```
+  3. **Launch**: Double-click `SlideForge.app` in Finder
+  4. **Alternative**: Right-click `SlideForge.app` → Open → Click "Open" in security dialog
   5. **See also**: [INSTALL_MACOS.md](INSTALL_MACOS.md) for detailed instructions
 - **Linux**: Extract `SlideForge-linux-*.tar.gz` and run `./Authoring.Desktop`
 
