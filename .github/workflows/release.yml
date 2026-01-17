@@ -187,11 +187,14 @@ jobs:
           tar -czf "$ARCHIVE_NAME" -C "./publish/${{ matrix.runtime }}" .
           echo "ARCHIVE_NAME=$ARCHIVE_NAME" >> $GITHUB_ENV
           # Verify the archive contains executable with correct permissions
-          if tar -tzf "$ARCHIVE_NAME" | grep -q "Authoring.Desktop"; then
+          # Use tar -tzf with output capture to avoid pipe errors
+          ARCHIVE_CONTENTS=$(tar -tzf "$ARCHIVE_NAME" 2>&1)
+          if echo "$ARCHIVE_CONTENTS" | grep -q "Authoring.Desktop"; then
             echo "✓ Archive created successfully"
           else
             echo "ERROR: Archive does not contain Authoring.Desktop"
-            tar -tzf "$ARCHIVE_NAME" | head -20
+            echo "Archive contents:"
+            echo "$ARCHIVE_CONTENTS" | head -20
             exit 1
           fi
 
