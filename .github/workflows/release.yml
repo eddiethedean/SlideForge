@@ -55,6 +55,16 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
+      
+      - name: Verify .NET SDK
+        shell: bash
+        run: |
+          echo "Installed .NET SDK:"
+          dotnet --version
+          echo "Available runtimes:"
+          dotnet --list-runtimes || true
+          echo "Checking for runtime ${{ matrix.runtime }}:"
+          dotnet --info | grep -i "${{ matrix.runtime }}" || echo "Runtime info not found in dotnet --info"
 
       - name: Restore dependencies
         shell: bash
@@ -71,6 +81,7 @@ jobs:
       - name: Publish application
         shell: bash
         run: |
+          echo "Publishing for runtime: ${{ matrix.runtime }}"
           dotnet publish src/Authoring.Desktop/Authoring.Desktop.csproj \
             --configuration Release \
             --runtime ${{ matrix.runtime }} \
@@ -78,7 +89,10 @@ jobs:
             --output ./publish/${{ matrix.runtime }} \
             -p:PublishSingleFile=true \
             -p:IncludeNativeLibrariesForSelfExtract=true \
-            -p:EnableCompressionInSingleFile=true
+            -p:EnableCompressionInSingleFile=true || {
+            echo "ERROR: dotnet publish failed"
+            exit 1
+          }
           
           # Verify publish succeeded
           if [ ! -d "./publish/${{ matrix.runtime }}" ]; then
@@ -91,13 +105,19 @@ jobs:
           
           # Ensure executables have proper permissions on Unix-like systems
           if [[ "${{ matrix.runtime }}" == linux-* ]] || [[ "${{ matrix.runtime }}" == osx-* ]]; then
-            if [ -f "./publish/${{ matrix.runtime }}/Authoring.Desktop" ]; then
-              chmod +x "./publish/${{ matrix.runtime }}/Authoring.Desktop"
-              echo "Set execute permissions on Authoring.Desktop"
+            EXEC_NAME="Authoring.Desktop"
+            EXEC_PATH="./publish/${{ matrix.runtime }}/$EXEC_NAME"
+            if [ -f "$EXEC_PATH" ]; then
+              chmod +x "$EXEC_PATH"
+              echo "Set execute permissions on $EXEC_NAME"
+              ls -l "$EXEC_PATH"
             else
-              echo "WARNING: Authoring.Desktop not found after publish"
-              echo "Looking for any executables:"
-              find "./publish/${{ matrix.runtime }}" -type f -executable || true
+              echo "ERROR: $EXEC_NAME not found after publish for ${{ matrix.runtime }}"
+              echo "Directory listing:"
+              ls -la "./publish/${{ matrix.runtime }}/" || true
+              echo "Looking for any files:"
+              find "./publish/${{ matrix.runtime }}" -type f || true
+              exit 1
             fi
           fi
 
@@ -134,8 +154,7 @@ jobs:
         shell: bash
         run: |
           EXECUTABLE="./publish/${{ matrix.runtime }}/Authoring.Desktop"
-          echo "Looking for executable at: $EXECUTABLE"
-          ls -la "./publish/${{ matrix.runtime }}/" || echo "Directory listing failed"
+          echo "Verifying executable at: $EXECUTABLE"
           if [ -f "$EXECUTABLE" ]; then
             # Ensure executable has proper permissions before packaging
             chmod +x "$EXECUTABLE"
@@ -148,9 +167,10 @@ jobs:
             echo "✓ Execute permissions verified for ${{ matrix.runtime }}"
           else
             echo "ERROR: Executable not found at $EXECUTABLE"
+            echo "This should not happen - publish step should have failed earlier"
             echo "Files in publish directory:"
-            find "./publish/${{ matrix.runtime }}" -type f -exec ls -lh {} \;
-            exit 2
+            find "./publish/${{ matrix.runtime }}" -type f -exec ls -lh {} \; || true
+            exit 1
           fi
 
       - name: Package Linux
