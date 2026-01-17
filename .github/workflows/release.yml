@@ -207,14 +207,44 @@ jobs:
           else
             ARCH="arm64"
           fi
+          
+          # Create a .command wrapper for macOS double-click support
+          EXEC_PATH="./publish/${{ matrix.runtime }}/Authoring.Desktop"
+          COMMAND_PATH="./publish/${{ matrix.runtime }}/Authoring.Desktop.command"
+          
+          # Create wrapper script that changes to its directory and runs the executable
+          cat > "$COMMAND_PATH" << 'EOF'
+#!/bin/bash
+# Get the directory where this script is located
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$DIR"
+# Run the executable
+exec ./Authoring.Desktop "$@"
+EOF
+          
+          # Make the wrapper executable
+          chmod +x "$COMMAND_PATH"
+          
+          # Remove quarantine attribute if present (helps with Gatekeeper)
+          xattr -d com.apple.quarantine "$EXEC_PATH" 2>/dev/null || true
+          xattr -d com.apple.quarantine "$COMMAND_PATH" 2>/dev/null || true
+          
           ARCHIVE_NAME="SlideForge-macos-$ARCH-v${{ env.VERSION }}.zip"
           cd "./publish/${{ matrix.runtime }}"
           # zip preserves permissions when using -X flag
           zip -X -r "../../$ARCHIVE_NAME" .
           cd ../..
           echo "ARCHIVE_NAME=$ARCHIVE_NAME" >> $GITHUB_ENV
-          # Verify the archive contains the executable
-          unzip -l "$ARCHIVE_NAME" | grep -q "Authoring.Desktop" && echo "✓ Archive created successfully"
+          
+          # Verify the archive contains both files
+          ARCHIVE_CONTENTS=$(unzip -l "$ARCHIVE_NAME" 2>&1)
+          if echo "$ARCHIVE_CONTENTS" | grep -q "Authoring.Desktop.command" && echo "$ARCHIVE_CONTENTS" | grep -q "Authoring.Desktop"; then
+            echo "✓ Archive created successfully with both executable and .command wrapper"
+          else
+            echo "ERROR: Archive missing required files"
+            echo "$ARCHIVE_CONTENTS"
+            exit 1
+          fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
