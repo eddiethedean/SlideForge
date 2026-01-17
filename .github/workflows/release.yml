@@ -80,11 +80,24 @@ jobs:
             -p:IncludeNativeLibrariesForSelfExtract=true \
             -p:EnableCompressionInSingleFile=true
           
+          # Verify publish succeeded
+          if [ ! -d "./publish/${{ matrix.runtime }}" ]; then
+            echo "ERROR: Publish directory not created"
+            exit 1
+          fi
+          
+          echo "Publish directory contents:"
+          ls -la "./publish/${{ matrix.runtime }}/" || true
+          
           # Ensure executables have proper permissions on Unix-like systems
           if [[ "${{ matrix.runtime }}" == linux-* ]] || [[ "${{ matrix.runtime }}" == osx-* ]]; then
             if [ -f "./publish/${{ matrix.runtime }}/Authoring.Desktop" ]; then
               chmod +x "./publish/${{ matrix.runtime }}/Authoring.Desktop"
               echo "Set execute permissions on Authoring.Desktop"
+            else
+              echo "WARNING: Authoring.Desktop not found after publish"
+              echo "Looking for any executables:"
+              find "./publish/${{ matrix.runtime }}" -type f -executable || true
             fi
           fi
 
@@ -121,6 +134,8 @@ jobs:
         shell: bash
         run: |
           EXECUTABLE="./publish/${{ matrix.runtime }}/Authoring.Desktop"
+          echo "Looking for executable at: $EXECUTABLE"
+          ls -la "./publish/${{ matrix.runtime }}/" || echo "Directory listing failed"
           if [ -f "$EXECUTABLE" ]; then
             # Ensure executable has proper permissions before packaging
             chmod +x "$EXECUTABLE"
@@ -133,7 +148,9 @@ jobs:
             echo "✓ Execute permissions verified for ${{ matrix.runtime }}"
           else
             echo "ERROR: Executable not found at $EXECUTABLE"
-            exit 1
+            echo "Files in publish directory:"
+            find "./publish/${{ matrix.runtime }}" -type f -exec ls -lh {} \;
+            exit 2
           fi
 
       - name: Package Linux
@@ -150,7 +167,13 @@ jobs:
           tar -czf "$ARCHIVE_NAME" -C "./publish/${{ matrix.runtime }}" .
           echo "ARCHIVE_NAME=$ARCHIVE_NAME" >> $GITHUB_ENV
           # Verify the archive contains executable with correct permissions
-          tar -tzf "$ARCHIVE_NAME" | grep -q "Authoring.Desktop" && echo "✓ Archive created successfully"
+          if tar -tzf "$ARCHIVE_NAME" | grep -q "Authoring.Desktop"; then
+            echo "✓ Archive created successfully"
+          else
+            echo "ERROR: Archive does not contain Authoring.Desktop"
+            tar -tzf "$ARCHIVE_NAME" | head -20
+            exit 1
+          fi
 
       - name: Package macOS
         if: startsWith(matrix.runtime, 'osx-')
