@@ -217,11 +217,7 @@ jobs:
           mkdir -p "$APP_DIR/Contents/MacOS"
           mkdir -p "$APP_DIR/Contents/Resources"
           
-          # Copy executable to MacOS directory
-          cp "$EXEC_PATH" "$APP_DIR/Contents/MacOS/Authoring.Desktop"
-          chmod +x "$APP_DIR/Contents/MacOS/Authoring.Desktop"
-          
-          # Create Info.plist
+          # Create Info.plist first (needed for app structure)
           VERSION="${{ env.VERSION }}"
           printf '<?xml version="1.0" encoding="UTF-8"?>\n' > "$APP_DIR/Contents/Info.plist"
           printf '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n' >> "$APP_DIR/Contents/Info.plist"
