@@ -79,12 +79,14 @@ Download pre-built binaries from [GitHub Releases](https://github.com/eddiethede
 - **Windows**: Extract `SlideForge-windows-x64-v*.zip` and run `Authoring.Desktop.exe`
 - **macOS**: 
   1. Extract `SlideForge-macos-*.zip`
-  2. **First time setup** (Gatekeeper bypass):
-     - Open Terminal and navigate to the extracted folder
-     - Run: `xattr -d com.apple.quarantine Authoring.Desktop.command` (removes quarantine)
-     - Or: Right-click `Authoring.Desktop.command` → Open → Click "Open" in the security dialog
-  3. **Launch**: Double-click `Authoring.Desktop.command` to launch
-  4. **Alternative**: Run `./Authoring.Desktop` directly from Terminal
+  2. **Remove Gatekeeper quarantine** (required once):
+     ```bash
+     cd /path/to/extracted/folder
+     xattr -d com.apple.quarantine Authoring.Desktop.command
+     ```
+  3. **Launch**: Double-click `Authoring.Desktop.command` in Finder
+  4. **Alternative**: Right-click `Authoring.Desktop.command` → Open → Click "Open"
+  5. **See also**: [INSTALL_MACOS.md](INSTALL_MACOS.md) for detailed instructions
 - **Linux**: Extract `SlideForge-linux-*.tar.gz` and run `./Authoring.Desktop`
 
 #### Option 2: Build from Source

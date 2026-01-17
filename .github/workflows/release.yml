@@ -212,21 +212,25 @@ jobs:
           EXEC_PATH="./publish/${{ matrix.runtime }}/Authoring.Desktop"
           COMMAND_PATH="./publish/${{ matrix.runtime }}/Authoring.Desktop.command"
           
-          # Create wrapper script that changes to its directory and runs the executable
+          # Create wrapper script that automatically removes quarantine on first run
           printf '%s\n' \
             '#!/bin/bash' \
             '# Get the directory where this script is located' \
             'DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"' \
             'cd "$DIR"' \
+            '' \
+            '# Automatically remove quarantine attribute if present (Gatekeeper bypass)' \
+            'if [ -n "$(xattr -l Authoring.Desktop.command 2>/dev/null | grep com.apple.quarantine)" ]; then' \
+            '  echo "Removing Gatekeeper quarantine..."' \
+            '  xattr -d com.apple.quarantine Authoring.Desktop.command 2>/dev/null || true' \
+            '  xattr -d com.apple.quarantine Authoring.Desktop 2>/dev/null || true' \
+            'fi' \
+            '' \
             '# Run the executable' \
             'exec ./Authoring.Desktop "$@"' > "$COMMAND_PATH"
           
           # Make the wrapper executable
           chmod +x "$COMMAND_PATH"
-          
-          # Remove quarantine attribute if present (helps with Gatekeeper)
-          xattr -d com.apple.quarantine "$EXEC_PATH" 2>/dev/null || true
-          xattr -d com.apple.quarantine "$COMMAND_PATH" 2>/dev/null || true
           
           ARCHIVE_NAME="SlideForge-macos-$ARCH-v${{ env.VERSION }}.zip"
           cd "./publish/${{ matrix.runtime }}"
