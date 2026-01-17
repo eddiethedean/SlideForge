@@ -305,8 +305,9 @@ EOF
 
             ### Installation
             - **Windows**: Extract the ZIP file and run `Authoring.Desktop.exe`
-            - **macOS**: Extract the ZIP file and run `./Authoring.Desktop` from Terminal (execute permissions are set automatically)
-              - Open Terminal, navigate to the extracted folder, then: `./Authoring.Desktop`
+            - **macOS**: Extract the ZIP file and double-click `Authoring.Desktop.command` (or run `./Authoring.Desktop` from Terminal)
+              - If macOS blocks it, right-click `Authoring.Desktop.command` and select "Open"
+              - Alternative: Open Terminal, navigate to the folder, then: `./Authoring.Desktop`
             - **Linux**: Extract the tar.gz file and run `./Authoring.Desktop` (execute permissions are set automatically)
 
             ### Changes

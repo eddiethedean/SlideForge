@@ -79,9 +79,9 @@ Download pre-built binaries from [GitHub Releases](https://github.com/eddiethede
 - **Windows**: Extract `SlideForge-windows-x64-v*.zip` and run `Authoring.Desktop.exe`
 - **macOS**: 
   1. Extract `SlideForge-macos-*.zip`
-  2. Open Terminal and navigate to the extracted folder
-  3. Run: `chmod +x Authoring.Desktop && ./Authoring.Desktop`
-  4. Or: Right-click `Authoring.Desktop` → Get Info → Check "Open with Terminal"
+  2. **Double-click `Authoring.Desktop.command`** to launch (recommended)
+  3. If macOS blocks it, right-click `Authoring.Desktop.command` → Open → Click "Open" in the security dialog
+  4. Alternative: Open Terminal, navigate to the folder, and run `./Authoring.Desktop`
 - **Linux**: Extract `SlideForge-linux-*.tar.gz` and run `./Authoring.Desktop`
 
 #### Option 2: Build from Source
