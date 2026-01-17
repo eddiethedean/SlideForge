@@ -213,14 +213,13 @@ jobs:
           COMMAND_PATH="./publish/${{ matrix.runtime }}/Authoring.Desktop.command"
           
           # Create wrapper script that changes to its directory and runs the executable
-          cat > "$COMMAND_PATH" << 'EOF'
-#!/bin/bash
-# Get the directory where this script is located
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd "$DIR"
-# Run the executable
-exec ./Authoring.Desktop "$@"
-EOF
+          printf '%s\n' \
+            '#!/bin/bash' \
+            '# Get the directory where this script is located' \
+            'DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"' \
+            'cd "$DIR"' \
+            '# Run the executable' \
+            'exec ./Authoring.Desktop "$@"' > "$COMMAND_PATH"
           
           # Make the wrapper executable
           chmod +x "$COMMAND_PATH"
