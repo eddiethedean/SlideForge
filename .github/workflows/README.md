@@ -45,7 +45,10 @@ Each release includes builds for all architectures:
 #### macOS
 - **x64 (Intel)**: `SlideForge-macos-x64-vX.X.X.zip`
 - **ARM64 (Apple Silicon)**: `SlideForge-macos-arm64-vX.X.X.zip`
-  - Extract and run `Authoring.Desktop`
+  - Extract the ZIP file
+  - Open Terminal and navigate to the extracted folder
+  - Run: `chmod +x Authoring.Desktop && ./Authoring.Desktop`
+  - Note: Future releases will have execute permissions set automatically
 
 #### Linux
 - **x64 (Intel/AMD)**: `SlideForge-linux-x64-vX.X.X.tar.gz`

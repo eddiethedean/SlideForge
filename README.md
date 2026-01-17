@@ -77,7 +77,11 @@ The project is organized into four main components:
 Download pre-built binaries from [GitHub Releases](https://github.com/eddiethedean/SlideForge/releases):
 
 - **Windows**: Extract `SlideForge-windows-x64-v*.zip` and run `Authoring.Desktop.exe`
-- **macOS**: Extract `SlideForge-macos-*.zip` and run `Authoring.Desktop`
+- **macOS**: 
+  1. Extract `SlideForge-macos-*.zip`
+  2. Open Terminal and navigate to the extracted folder
+  3. Run: `chmod +x Authoring.Desktop && ./Authoring.Desktop`
+  4. Or: Right-click `Authoring.Desktop` → Get Info → Check "Open with Terminal"
 - **Linux**: Extract `SlideForge-linux-*.tar.gz` and run `./Authoring.Desktop`
 
 #### Option 2: Build from Source
