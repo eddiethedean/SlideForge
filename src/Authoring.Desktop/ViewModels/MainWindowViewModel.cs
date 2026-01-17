@@ -45,6 +45,16 @@ public partial class MainWindowViewModel : ViewModelBase
             {
                 OnPropertyChanged(nameof(WindowTitle));
                 OnPropertyChanged(nameof(HasProject));
+                // Notify commands that depend on HasProject
+                SaveProjectCommand.NotifyCanExecuteChanged();
+                SaveAsProjectCommand.NotifyCanExecuteChanged();
+                AddSlideCommand.NotifyCanExecuteChanged();
+                DeleteSlideCommand.NotifyCanExecuteChanged();
+                DuplicateSlideCommand.NotifyCanExecuteChanged();
+                AddLayerCommand.NotifyCanExecuteChanged();
+                DeleteLayerCommand.NotifyCanExecuteChanged();
+                ToggleObjectTimelineCommand.NotifyCanExecuteChanged();
+                DeleteSelectedObjectCommand.NotifyCanExecuteChanged();
                 UpdateSlidesCollection();
                 if (_currentProject?.Slides.Count > 0)
                 {
