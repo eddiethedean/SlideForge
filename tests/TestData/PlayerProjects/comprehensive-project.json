@@ -1,0 +1,255 @@
+{
+  "id": "comprehensive-project",
+  "name": "Comprehensive Test Project",
+  "version": "1.0.0",
+  "author": "Test Author",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "modifiedAt": "2024-01-01T00:00:00Z",
+  "variables": [
+    {
+      "id": "score",
+      "name": "Score",
+      "type": "Number",
+      "defaultValue": 0
+    },
+    {
+      "id": "completed",
+      "name": "Completed",
+      "type": "Boolean",
+      "defaultValue": false
+    }
+  ],
+  "slides": [
+    {
+      "id": "slide-1",
+      "title": "Comprehensive Demo",
+      "width": 1920,
+      "height": 1080,
+      "layers": [
+        {
+          "id": "layer-base",
+          "name": "Base Layer",
+          "visible": true,
+          "objects": [
+            {
+              "objectType": "text",
+              "id": "text-title",
+              "name": "Title",
+              "x": 200,
+              "y": 50,
+              "width": 1520,
+              "height": 80,
+              "visible": true,
+              "text": "Comprehensive Feature Demo",
+              "fontFamily": "Arial",
+              "fontSize": 42,
+              "color": "#000000",
+              "triggers": []
+            },
+            {
+              "objectType": "text",
+              "id": "text-timeline",
+              "name": "Timeline Object",
+              "x": 200,
+              "y": 200,
+              "width": 1520,
+              "height": 60,
+              "visible": true,
+              "text": "This text appears at 1 second (timeline)",
+              "fontFamily": "Arial",
+              "fontSize": 20,
+              "color": "#0066cc",
+              "timeline": {
+                "startTime": 1,
+                "duration": 3
+              },
+              "triggers": [
+                {
+                  "id": "trigger-timeline",
+                  "type": "OnTimelineStart",
+                  "objectId": null,
+                  "actions": [
+                    {
+                      "actionType": "setVariable",
+                      "variableId": "score",
+                      "value": 5
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "layer-overlay",
+          "name": "Overlay Layer",
+          "visible": false,
+          "objects": [
+            {
+              "objectType": "text",
+              "id": "text-overlay",
+              "name": "Overlay Text",
+              "x": 200,
+              "y": 350,
+              "width": 1520,
+              "height": 100,
+              "visible": true,
+              "text": "This is an overlay layer that can be shown/hidden",
+              "fontFamily": "Arial",
+              "fontSize": 24,
+              "color": "#cc6600",
+              "triggers": []
+            }
+          ]
+        },
+        {
+          "id": "layer-controls",
+          "name": "Controls Layer",
+          "visible": true,
+          "objects": [
+            {
+              "objectType": "button",
+              "id": "button-action1",
+              "name": "Action Button 1",
+              "x": 200,
+              "y": 550,
+              "width": 300,
+              "height": 60,
+              "visible": true,
+              "label": "Show Overlay + Set Score",
+              "enabled": true,
+              "triggers": [
+                {
+                  "id": "trigger-action1",
+                  "type": "OnClick",
+                  "objectId": null,
+                  "actions": [
+                    {
+                      "actionType": "showLayer",
+                      "layerId": "layer-overlay"
+                    },
+                    {
+                      "actionType": "setVariable",
+                      "variableId": "score",
+                      "value": 10
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "objectType": "button",
+              "id": "button-action2",
+              "name": "Action Button 2",
+              "x": 550,
+              "y": 550,
+              "width": 300,
+              "height": 60,
+              "visible": true,
+              "label": "Hide Overlay + Complete",
+              "enabled": true,
+              "triggers": [
+                {
+                  "id": "trigger-action2",
+                  "type": "OnClick",
+                  "objectId": null,
+                  "actions": [
+                    {
+                      "actionType": "hideLayer",
+                      "layerId": "layer-overlay"
+                    },
+                    {
+                      "actionType": "setVariable",
+                      "variableId": "completed",
+                      "value": true
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "objectType": "button",
+              "id": "button-navigate",
+              "name": "Navigate Button",
+              "x": 900,
+              "y": 550,
+              "width": 300,
+              "height": 60,
+              "visible": true,
+              "label": "Go to Slide 2",
+              "enabled": true,
+              "triggers": [
+                {
+                  "id": "trigger-navigate",
+                  "type": "OnClick",
+                  "objectId": null,
+                  "actions": [
+                    {
+                      "actionType": "navigateToSlide",
+                      "targetSlideId": "slide-2"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "slide-2",
+      "title": "Slide 2",
+      "width": 1920,
+      "height": 1080,
+      "layers": [
+        {
+          "id": "layer-base-2",
+          "name": "Base Layer",
+          "visible": true,
+          "objects": [
+            {
+              "objectType": "text",
+              "id": "text-title-2",
+              "name": "Title",
+              "x": 200,
+              "y": 100,
+              "width": 1520,
+              "height": 80,
+              "visible": true,
+              "text": "Second Slide",
+              "fontFamily": "Arial",
+              "fontSize": 36,
+              "color": "#000000",
+              "triggers": []
+            },
+            {
+              "objectType": "button",
+              "id": "button-back",
+              "name": "Back Button",
+              "x": 860,
+              "y": 500,
+              "width": 200,
+              "height": 60,
+              "visible": true,
+              "label": "← Back to Slide 1",
+              "enabled": true,
+              "triggers": [
+                {
+                  "id": "trigger-back",
+                  "type": "OnClick",
+                  "objectId": null,
+                  "actions": [
+                    {
+                      "actionType": "navigateToSlide",
+                      "targetSlideId": "slide-1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

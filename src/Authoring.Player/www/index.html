@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SlideForge Player</title>
+    <link rel="stylesheet" href="css/player.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Loading State -->
+        <div id="loading" class="loading-container">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading project...</div>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="error-container" style="display: none;">
+            <div class="error-icon">⚠️</div>
+            <div class="error-title">Error Loading Project</div>
+            <div class="error-message" id="error-message"></div>
+        </div>
+
+        <!-- Player Container -->
+        <div id="player" class="player-container" style="display: none;">
+            <!-- Slide Viewport -->
+            <div id="slide-viewport" class="slide-viewport">
+                <div id="slide-container" class="slide-container"></div>
+            </div>
+
+            <!-- Player Controls -->
+            <div class="player-controls">
+                <button id="btn-prev" class="control-btn" title="Previous Slide">◀ Previous</button>
+                
+                <div class="playback-controls">
+                    <button id="btn-play-pause" class="control-btn play-pause-btn" title="Play/Pause">▶ Play</button>
+                </div>
+
+                <div class="progress-indicator">
+                    <span id="slide-title" class="slide-title"></span>
+                    <span id="slide-progress" class="slide-progress">1 / 1</span>
+                </div>
+
+                <button id="btn-next" class="control-btn" title="Next Slide">Next ▶</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/runtime.js"></script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+{
+  "id": "simple-project",
+  "name": "Simple Test Project",
+  "version": "1.0.0",
+  "author": "Test Author",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "modifiedAt": "2024-01-01T00:00:00Z",
+  "variables": [],
+  "slides": [
+    {
+      "id": "slide-1",
+      "title": "Simple Slide",
+      "width": 1920,
+      "height": 1080,
+      "layers": [
+        {
+          "id": "layer-1",
+          "name": "Base Layer",
+          "visible": true,
+          "objects": [
+            {
+              "objectType": "text",
+              "id": "text-1",
+              "name": "Title Text",
+              "x": 200,
+              "y": 200,
+              "width": 1520,
+              "height": 100,
+              "visible": true,
+              "text": "Welcome to SlideForge",
+              "fontFamily": "Arial",
+              "fontSize": 48,
+              "color": "#000000",
+              "triggers": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

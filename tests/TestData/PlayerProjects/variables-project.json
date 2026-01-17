@@ -1,0 +1,189 @@
+{
+  "id": "variables-project",
+  "name": "Variables Test Project",
+  "version": "1.0.0",
+  "author": "Test Author",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "modifiedAt": "2024-01-01T00:00:00Z",
+  "variables": [
+    {
+      "id": "score",
+      "name": "Score",
+      "type": "Number",
+      "defaultValue": 0
+    },
+    {
+      "id": "completed",
+      "name": "Completed",
+      "type": "Boolean",
+      "defaultValue": false
+    },
+    {
+      "id": "playerName",
+      "name": "Player Name",
+      "type": "String",
+      "defaultValue": "Guest"
+    }
+  ],
+  "slides": [
+    {
+      "id": "slide-1",
+      "title": "Variable Demo",
+      "width": 1920,
+      "height": 1080,
+      "layers": [
+        {
+          "id": "layer-1",
+          "name": "Base Layer",
+          "visible": true,
+          "objects": [
+            {
+              "objectType": "text",
+              "id": "text-1",
+              "name": "Title",
+              "x": 200,
+              "y": 100,
+              "width": 1520,
+              "height": 80,
+              "visible": true,
+              "text": "Variable Manipulation Demo",
+              "fontFamily": "Arial",
+              "fontSize": 36,
+              "color": "#000000",
+              "triggers": []
+            },
+            {
+              "objectType": "text",
+              "id": "text-2",
+              "name": "Instructions",
+              "x": 200,
+              "y": 250,
+              "width": 1520,
+              "height": 200,
+              "visible": true,
+              "text": "Click buttons to modify variables:\n- Score (Number): starts at 0\n- Completed (Boolean): starts at false\n- Player Name (String): starts at 'Guest'",
+              "fontFamily": "Arial",
+              "fontSize": 18,
+              "color": "#333333",
+              "triggers": []
+            },
+            {
+              "objectType": "button",
+              "id": "button-increment",
+              "name": "Increment Score",
+              "x": 200,
+              "y": 550,
+              "width": 250,
+              "height": 60,
+              "visible": true,
+              "label": "Score + 10",
+              "enabled": true,
+              "triggers": [
+                {
+                  "id": "trigger-increment",
+                  "type": "OnClick",
+                  "objectId": null,
+                  "actions": [
+                    {
+                      "actionType": "setVariable",
+                      "variableId": "score",
+                      "value": 10
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "objectType": "button",
+              "id": "button-complete",
+              "name": "Mark Complete",
+              "x": 500,
+              "y": 550,
+              "width": 250,
+              "height": 60,
+              "visible": true,
+              "label": "Set Completed = true",
+              "enabled": true,
+              "triggers": [
+                {
+                  "id": "trigger-complete",
+                  "type": "OnClick",
+                  "objectId": null,
+                  "actions": [
+                    {
+                      "actionType": "setVariable",
+                      "variableId": "completed",
+                      "value": true
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "objectType": "button",
+              "id": "button-name",
+              "name": "Set Name",
+              "x": 800,
+              "y": 550,
+              "width": 250,
+              "height": 60,
+              "visible": true,
+              "label": "Set Name = 'Player'",
+              "enabled": true,
+              "triggers": [
+                {
+                  "id": "trigger-name",
+                  "type": "OnClick",
+                  "objectId": null,
+                  "actions": [
+                    {
+                      "actionType": "setVariable",
+                      "variableId": "playerName",
+                      "value": "Player"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "objectType": "button",
+              "id": "button-reset",
+              "name": "Reset All",
+              "x": 200,
+              "y": 650,
+              "width": 250,
+              "height": 60,
+              "visible": true,
+              "label": "Reset All Variables",
+              "enabled": true,
+              "triggers": [
+                {
+                  "id": "trigger-reset",
+                  "type": "OnClick",
+                  "objectId": null,
+                  "actions": [
+                    {
+                      "actionType": "setVariable",
+                      "variableId": "score",
+                      "value": 0
+                    },
+                    {
+                      "actionType": "setVariable",
+                      "variableId": "completed",
+                      "value": false
+                    },
+                    {
+                      "actionType": "setVariable",
+                      "variableId": "playerName",
+                      "value": "Guest"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

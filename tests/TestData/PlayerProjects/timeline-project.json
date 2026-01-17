@@ -1,0 +1,149 @@
+{
+  "id": "timeline-project",
+  "name": "Timeline Test Project",
+  "version": "1.0.0",
+  "author": "Test Author",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "modifiedAt": "2024-01-01T00:00:00Z",
+  "variables": [],
+  "slides": [
+    {
+      "id": "slide-1",
+      "title": "Timeline Demo",
+      "width": 1920,
+      "height": 1080,
+      "layers": [
+        {
+          "id": "layer-1",
+          "name": "Base Layer",
+          "visible": true,
+          "objects": [
+            {
+              "objectType": "text",
+              "id": "text-title",
+              "name": "Title",
+              "x": 200,
+              "y": 100,
+              "width": 1520,
+              "height": 80,
+              "visible": true,
+              "text": "Timeline Playback Demo",
+              "fontFamily": "Arial",
+              "fontSize": 36,
+              "color": "#000000",
+              "triggers": []
+            },
+            {
+              "objectType": "text",
+              "id": "text-instructions",
+              "name": "Instructions",
+              "x": 200,
+              "y": 200,
+              "width": 1520,
+              "height": 150,
+              "visible": true,
+              "text": "Click 'Play' to start the timeline.\nObjects will appear at their scheduled times.\nOnTimelineStart triggers fire when objects become visible.",
+              "fontFamily": "Arial",
+              "fontSize": 18,
+              "color": "#333333",
+              "triggers": []
+            },
+            {
+              "objectType": "text",
+              "id": "text-obj1",
+              "name": "Object 1 (t=0s)",
+              "x": 200,
+              "y": 400,
+              "width": 1520,
+              "height": 80,
+              "visible": true,
+              "text": "Object 1: Appears at 0 seconds, duration 2 seconds",
+              "fontFamily": "Arial",
+              "fontSize": 24,
+              "color": "#0066cc",
+              "timeline": {
+                "startTime": 0,
+                "duration": 2
+              },
+              "triggers": [
+                {
+                  "id": "trigger-timeline1",
+                  "type": "OnTimelineStart",
+                  "objectId": null,
+                  "actions": []
+                }
+              ]
+            },
+            {
+              "objectType": "text",
+              "id": "text-obj2",
+              "name": "Object 2 (t=2s)",
+              "x": 200,
+              "y": 520,
+              "width": 1520,
+              "height": 80,
+              "visible": true,
+              "text": "Object 2: Appears at 2 seconds, duration 3 seconds",
+              "fontFamily": "Arial",
+              "fontSize": 24,
+              "color": "#cc6600",
+              "timeline": {
+                "startTime": 2,
+                "duration": 3
+              },
+              "triggers": [
+                {
+                  "id": "trigger-timeline2",
+                  "type": "OnTimelineStart",
+                  "objectId": null,
+                  "actions": []
+                }
+              ]
+            },
+            {
+              "objectType": "text",
+              "id": "text-obj3",
+              "name": "Object 3 (t=5s)",
+              "x": 200,
+              "y": 640,
+              "width": 1520,
+              "height": 80,
+              "visible": true,
+              "text": "Object 3: Appears at 5 seconds, duration 4 seconds",
+              "fontFamily": "Arial",
+              "fontSize": 24,
+              "color": "#009900",
+              "timeline": {
+                "startTime": 5,
+                "duration": 4
+              },
+              "triggers": [
+                {
+                  "id": "trigger-timeline3",
+                  "type": "OnTimelineStart",
+                  "objectId": null,
+                  "actions": []
+                }
+              ]
+            },
+            {
+              "objectType": "text",
+              "id": "text-always",
+              "name": "Always Visible",
+              "x": 200,
+              "y": 800,
+              "width": 1520,
+              "height": 80,
+              "visible": true,
+              "text": "This object has no timeline (always visible)",
+              "fontFamily": "Arial",
+              "fontSize": 20,
+              "color": "#666666",
+              "triggers": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

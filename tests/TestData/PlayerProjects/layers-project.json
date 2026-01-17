@@ -1,0 +1,207 @@
+{
+  "id": "layers-project",
+  "name": "Layers Test Project",
+  "version": "1.0.0",
+  "author": "Test Author",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "modifiedAt": "2024-01-01T00:00:00Z",
+  "variables": [],
+  "slides": [
+    {
+      "id": "slide-1",
+      "title": "Layer Show/Hide Demo",
+      "width": 1920,
+      "height": 1080,
+      "layers": [
+        {
+          "id": "layer-base",
+          "name": "Base Layer",
+          "visible": true,
+          "objects": [
+            {
+              "objectType": "text",
+              "id": "text-title",
+              "name": "Title",
+              "x": 200,
+              "y": 100,
+              "width": 1520,
+              "height": 80,
+              "visible": true,
+              "text": "Layer Show/Hide Demo",
+              "fontFamily": "Arial",
+              "fontSize": 36,
+              "color": "#000000",
+              "triggers": []
+            },
+            {
+              "objectType": "text",
+              "id": "text-base",
+              "name": "Base Text",
+              "x": 200,
+              "y": 250,
+              "width": 1520,
+              "height": 100,
+              "visible": true,
+              "text": "This is the base layer (always visible)",
+              "fontFamily": "Arial",
+              "fontSize": 24,
+              "color": "#333333",
+              "triggers": []
+            }
+          ]
+        },
+        {
+          "id": "layer-1",
+          "name": "Layer 1",
+          "visible": true,
+          "objects": [
+            {
+              "objectType": "text",
+              "id": "text-layer1",
+              "name": "Layer 1 Text",
+              "x": 200,
+              "y": 400,
+              "width": 1520,
+              "height": 100,
+              "visible": true,
+              "text": "This is Layer 1 (visible by default)",
+              "fontFamily": "Arial",
+              "fontSize": 24,
+              "color": "#0066cc",
+              "triggers": []
+            }
+          ]
+        },
+        {
+          "id": "layer-2",
+          "name": "Layer 2",
+          "visible": false,
+          "objects": [
+            {
+              "objectType": "text",
+              "id": "text-layer2",
+              "name": "Layer 2 Text",
+              "x": 200,
+              "y": 550,
+              "width": 1520,
+              "height": 100,
+              "visible": true,
+              "text": "This is Layer 2 (hidden by default)",
+              "fontFamily": "Arial",
+              "fontSize": 24,
+              "color": "#cc6600",
+              "triggers": []
+            }
+          ]
+        },
+        {
+          "id": "layer-controls",
+          "name": "Controls Layer",
+          "visible": true,
+          "objects": [
+            {
+              "objectType": "button",
+              "id": "button-show-layer1",
+              "name": "Show Layer 1",
+              "x": 200,
+              "y": 700,
+              "width": 200,
+              "height": 60,
+              "visible": true,
+              "label": "Show Layer 1",
+              "enabled": true,
+              "triggers": [
+                {
+                  "id": "trigger-show1",
+                  "type": "OnClick",
+                  "objectId": null,
+                  "actions": [
+                    {
+                      "actionType": "showLayer",
+                      "layerId": "layer-1"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "objectType": "button",
+              "id": "button-hide-layer1",
+              "name": "Hide Layer 1",
+              "x": 450,
+              "y": 700,
+              "width": 200,
+              "height": 60,
+              "visible": true,
+              "label": "Hide Layer 1",
+              "enabled": true,
+              "triggers": [
+                {
+                  "id": "trigger-hide1",
+                  "type": "OnClick",
+                  "objectId": null,
+                  "actions": [
+                    {
+                      "actionType": "hideLayer",
+                      "layerId": "layer-1"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "objectType": "button",
+              "id": "button-show-layer2",
+              "name": "Show Layer 2",
+              "x": 700,
+              "y": 700,
+              "width": 200,
+              "height": 60,
+              "visible": true,
+              "label": "Show Layer 2",
+              "enabled": true,
+              "triggers": [
+                {
+                  "id": "trigger-show2",
+                  "type": "OnClick",
+                  "objectId": null,
+                  "actions": [
+                    {
+                      "actionType": "showLayer",
+                      "layerId": "layer-2"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "objectType": "button",
+              "id": "button-hide-layer2",
+              "name": "Hide Layer 2",
+              "x": 950,
+              "y": 700,
+              "width": 200,
+              "height": 60,
+              "visible": true,
+              "label": "Hide Layer 2",
+              "enabled": true,
+              "triggers": [
+                {
+                  "id": "trigger-hide2",
+                  "type": "OnClick",
+                  "objectId": null,
+                  "actions": [
+                    {
+                      "actionType": "hideLayer",
+                      "layerId": "layer-2"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

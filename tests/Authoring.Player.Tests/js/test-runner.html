@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SlideForge Player Runtime Tests</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        .test-results {
+            margin-top: 20px;
+        }
+        .suite {
+            margin: 20px 0;
+            padding: 10px;
+            border-left: 3px solid #4a9eff;
+        }
+        .test-pass {
+            color: #4caf50;
+            margin: 5px 0;
+        }
+        .test-fail {
+            color: #f44336;
+            margin: 5px 0;
+        }
+        .summary {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #2a2a2a;
+            border-radius: 4px;
+        }
+        .error {
+            color: #ff9800;
+            font-size: 12px;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>SlideForge Player Runtime Tests</h1>
+    <div id="test-results"></div>
+    
+    <!-- Load runtime first -->
+    <script src="../../../src/Authoring.Player/www/js/runtime.js"></script>
+    
+    <!-- Load test framework -->
+    <script src="test-runner.js"></script>
+    
+    <!-- Load all test suites -->
+    <script src="tests/ProjectLoaderTests.js"></script>
+    <script src="tests/VariableSystemTests.js"></script>
+    <script src="tests/LayerManagerTests.js"></script>
+    <script src="tests/TimelineEngineTests.js"></script>
+    <script src="tests/ActionExecutorTests.js"></script>
+    <script src="tests/TriggerEvaluatorTests.js"></script>
+    <script src="tests/IntegrationTests.js"></script>
+    
+    <!-- Run all tests -->
+    <script>
+        // Override console.log to display in page
+        const originalLog = console.log;
+        const testResults = document.getElementById('test-results');
+        let output = [];
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            output.push(args.join(' '));
+        };
+        
+        // Override TestRunner to render to DOM
+        const originalDescribe = TestRunner.prototype.describe;
+        TestRunner.prototype.describe = function(suiteName, fn) {
+            const suiteDiv = document.createElement('div');
+            suiteDiv.className = 'suite';
+            suiteDiv.innerHTML = `<h2>${suiteName}</h2><div class="suite-tests"></div>`;
+            testResults.appendChild(suiteDiv);
+            
+            const originalIt = this.it.bind(this);
+            this.it = (testName, fn) => {
+                const testDiv = document.createElement('div');
+                try {
+                    fn();
+                    this.passed++;
+                    testDiv.className = 'test-pass';
+                    testDiv.textContent = `  ✓ ${testName}`;
+                } catch (error) {
+                    this.failed++;
+                    testDiv.className = 'test-fail';
+                    testDiv.innerHTML = `  ✗ ${testName}<div class="error">${error.message}</div>`;
+                }
+                suiteDiv.querySelector('.suite-tests').appendChild(testDiv);
+            };
+            
+            fn();
+            
+            this.it = originalIt;
+        };
+        
+        // Run tests
+        function runAllTests() {
+            const runner = new TestRunner();
+            
+            // Load and run test suites
+            if (typeof ProjectLoader !== 'undefined') {
+                runProjectLoaderTests(runner, assert);
+            }
+            
+            if (typeof VariableSystem !== 'undefined') {
+                runVariableSystemTests(runner, assert);
+            }
+            
+            if (typeof LayerManager !== 'undefined') {
+                runLayerManagerTests(runner, assert);
+            }
+            
+            if (typeof TimelineEngine !== 'undefined') {
+                runTimelineEngineTests(runner, assert);
+            }
+            
+            if (typeof ActionExecutor !== 'undefined') {
+                runActionExecutorTests(runner, assert);
+            }
+            
+            if (typeof TriggerEvaluator !== 'undefined') {
+                runTriggerEvaluatorTests(runner, assert);
+            }
+            
+            if (typeof PlayerController !== 'undefined') {
+                runIntegrationTests(runner, assert);
+            }
+            
+            // Display summary
+            const summary = document.createElement('div');
+            summary.className = 'summary';
+            const total = runner.passed + runner.failed;
+            const status = runner.failed === 0 ? 'PASSED' : 'FAILED';
+            summary.innerHTML = `
+                <h2>Test Summary</h2>
+                <p>Tests: ${total} | Passed: <span style="color: #4caf50">${runner.passed}</span> | Failed: <span style="color: #f44336">${runner.failed}</span></p>
+                <p><strong>Status: ${status}</strong></p>
+            `;
+            testResults.appendChild(summary);
+        }
+        
+        // Run when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', runAllTests);
+        } else {
+            runAllTests();
+        }
+    </script>
+</body>
+</html>
