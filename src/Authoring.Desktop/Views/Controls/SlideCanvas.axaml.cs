@@ -117,6 +117,7 @@ public partial class SlideCanvas : UserControl
     public Point ScreenToSlide(Point screenPoint)
     {
         // Account for border margin (20px) and zoom
+        // MainCanvas is inside a Border with 20px margin
         var canvasPoint = new Point((screenPoint.X - 20) / _zoomLevel, (screenPoint.Y - 20) / _zoomLevel);
         return canvasPoint;
     }
@@ -241,6 +242,9 @@ public partial class SlideCanvas : UserControl
                 _isDragging = true;
                 _dragStartPosition = e.GetPosition(MainCanvas);
                 _objectStartPosition = new Point(obj.X, obj.Y);
+                
+                // Capture pointer to continue dragging even if pointer leaves the object
+                e.Pointer.Capture(border);
                 e.Handled = true;
             }
         }
@@ -280,13 +284,30 @@ public partial class SlideCanvas : UserControl
         if (_isDragging && _selectedObject != null)
         {
             var currentPosition = e.GetPosition(MainCanvas);
-            var deltaX = (currentPosition.X - _dragStartPosition.X) / _zoomLevel;
-            var deltaY = (currentPosition.Y - _dragStartPosition.Y) / _zoomLevel;
+            // Account for border margin (20px) when converting to slide coordinates
+            var slideCurrentPos = ScreenToSlide(currentPosition);
+            var slideStartPos = ScreenToSlide(_dragStartPosition);
+            
+            var deltaX = slideCurrentPos.X - slideStartPos.X;
+            var deltaY = slideCurrentPos.Y - slideStartPos.Y;
 
-            _selectedObject.X = Math.Max(0, _objectStartPosition.X + deltaX);
-            _selectedObject.Y = Math.Max(0, _objectStartPosition.Y + deltaY);
+            var newX = Math.Max(0, _objectStartPosition.X + deltaX);
+            var newY = Math.Max(0, _objectStartPosition.Y + deltaY);
+            
+            // Don't allow dragging outside slide bounds
+            if (_currentSlide != null)
+            {
+                newX = Math.Min(newX, _currentSlide.Width - _selectedObject.Width);
+                newY = Math.Min(newY, _currentSlide.Height - _selectedObject.Height);
+            }
+
+            _selectedObject.X = newX;
+            _selectedObject.Y = newY;
 
             RefreshCanvas();
+            
+            // Notify ViewModel of position change to update properties panel
+            OnObjectPositionChanged?.Invoke(this, _selectedObject);
             
             // Notify binding of position change
             if (this.GetValue(SelectedObjectProperty) == _selectedObject)
@@ -301,8 +322,18 @@ public partial class SlideCanvas : UserControl
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         base.OnPointerReleased(e);
+        
+        if (_isDragging)
+        {
+            // Release pointer capture
+            if (e.Pointer.Captured != null)
+            {
+                e.Pointer.Capture(null);
+            }
+            _isDragging = false;
+        }
+        
         _isPanning = false;
-        _isDragging = false;
     }
 
     protected override void OnKeyDown(KeyEventArgs e)
@@ -320,4 +351,9 @@ public partial class SlideCanvas : UserControl
     /// Event fired when an object should be deleted.
     /// </summary>
     public event EventHandler<SlideObject>? ObjectDeleted;
+
+    /// <summary>
+    /// Event fired when an object's position changes (e.g., during dragging).
+    /// </summary>
+    public event EventHandler<SlideObject>? OnObjectPositionChanged;
 }

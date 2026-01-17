@@ -37,6 +37,12 @@ public partial class MainWindow : Window
                 RefreshCanvas();
             };
 
+            _canvas.OnObjectPositionChanged += (s, obj) =>
+            {
+                // Notify ViewModel that object position changed (marks project as modified)
+                vm.OnObjectPropertyChanged();
+            };
+
             // Focus canvas to receive keyboard events
             _canvas.Focusable = true;
         }

@@ -16,7 +16,7 @@ This document outlines the development phases and milestones for SlideForge, an 
 - ✅ Complete domain model implementation
 - ✅ JSON serialization with polymorphic type support
 - ✅ Comprehensive validation system
-- ✅ Comprehensive test suite (354+ tests across 40+ files, 97%+ line coverage)
+- ✅ Comprehensive test suite (407+ tests across 40+ files, 97%+ line coverage)
 - ✅ Desktop editor UI with full MVP feature set
 - ✅ Property-based testing infrastructure (FsCheck)
 - ✅ Performance testing infrastructure (BenchmarkDotNet)
@@ -103,7 +103,11 @@ This document outlines the development phases and milestones for SlideForge, an 
 - ✅ Click-to-place objects on canvas
 - ✅ Object selection and property editing
 - ✅ Object properties panel with type-specific properties
-- ⏳ Move/resize objects via drag handles (deferred to Phase 6)
+- ✅ **Interactive object dragging** - Click and drag objects to reposition
+- ✅ Drag bounds checking (prevents objects from going outside slide boundaries)
+- ✅ Coordinate conversion for dragging at different zoom levels
+- ✅ Project modification tracking when objects are moved
+- ⏳ Resize objects via drag handles (deferred to Phase 6)
 
 ### 2.5 Basic Layer Support ✅
 - ✅ Layer panel/list
@@ -118,15 +122,17 @@ This document outlines the development phases and milestones for SlideForge, an 
 - ⏳ Visual timeline markers (deferred to Phase 3)
 
 ### Testing ✅
-- ✅ 229+ desktop tests (ViewModels, Services, Controls, Converters)
+- ✅ 282+ desktop tests (ViewModels, Services, Controls, Converters)
 - ✅ Integration tests for project lifecycle
 - ✅ UI tests using Avalonia.Headless
 - ✅ Edge case testing
 - ✅ Robust test suites for triggers, variables, and actions
 - ✅ Menu commands tests (36 tests for Edit, View, Help menus)
 - ✅ Dialog tests (5 tests for About and Help dialogs)
+- ✅ UI binding tests (29 tests covering all MainWindow bindings)
+- ✅ Object dragging tests (24 tests: 17 unit tests + 7 integration tests)
 
-**Acceptance Criteria Met**: ✅ Users can create a project, add slides, place text/images/buttons, adjust their properties, and save the project as JSON.
+**Acceptance Criteria Met**: ✅ Users can create a project, add slides, place text/images/buttons, drag objects to reposition them, adjust their properties, and save the project as JSON.
 
 ---
 
@@ -255,6 +261,7 @@ This document outlines the development phases and milestones for SlideForge, an 
 - ✅ Menu system (File, Edit, View, Help)
 - ✅ Keyboard shortcuts display (Help menu)
 - ✅ Help dialogs (About, Documentation, Keyboard Shortcuts)
+- ✅ Object dragging functionality
 - ⏳ Keyboard shortcuts implementation (UI ready, functionality in Phase 6)
 - [ ] Undo/redo system (UI ready, functionality in Phase 6)
 - [ ] Copy/paste objects between slides (UI ready, functionality in Phase 6)
@@ -340,6 +347,7 @@ See [Contributing Guidelines](CONTRIBUTING.md) (when available) for how to get i
 - **v0.3** ✅ - Phase 2: Minimal Desktop Editor MVP (COMPLETE)
 - **v0.4** ✅ - Phase 3: Triggers & Variables System (COMPLETE)
 - **v0.4.1** ✅ - Menu system and UI improvements (Edit/View/Help menus with commands, improved slide management with prominent toolbar button)
+- **v0.4.2** ✅ - Object dragging functionality (interactive drag-and-drop with bounds checking) and comprehensive UI binding tests (29 tests) + dragging tests (24 tests)
 - **v0.5** 🚧 - Phase 4: HTML/JavaScript Runtime Player (NEXT)
 - **v1.0** 📋 - MVP complete (Phases 1-6)
 
@@ -347,11 +355,11 @@ See [Contributing Guidelines](CONTRIBUTING.md) (when available) for how to get i
 
 ### Test Organization
 - **40+ test files** organized by category (Unit, Integration, UI, Property-Based, Performance)
-- **354+ tests** covering all components (125 Core + 229 Desktop)
+- **407+ tests** covering all components (125 Core + 282 Desktop)
 - **Test builders** (ProjectBuilder, SlideBuilder, ObjectBuilder) for fluent test data creation
 - **Assertion extensions** for cleaner test assertions
 - **Test data management** with sample project files
-- **Robust test suites** for triggers, variables, actions, and menu commands with edge case coverage
+- **Robust test suites** for triggers, variables, actions, menu commands, UI bindings, and object dragging with edge case coverage
 
 ### Test Categories
 - **Unit Tests**: Model, service, and ViewModel logic

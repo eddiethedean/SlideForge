@@ -65,7 +65,7 @@ dotnet test --filter "Category=UI"
 Test coverage is tracked and reported using Coverlet. Current coverage:
 - **Line Coverage**: 97.2%+
 - **Branch Coverage**: 94%+
-- **Total Tests**: 354+ across 40+ test files
+- **Total Tests**: 407+ across 40+ test files
 - **Test Categories**: Unit, Integration, UI, Property-Based, Performance
 
 See [TESTING.md](tests/TESTING.md) for comprehensive testing guidelines and best practices.
@@ -74,6 +74,7 @@ See [TESTING.md](tests/TESTING.md) for comprehensive testing guidelines and best
 
 - Slide-based project structure with easy slide management (toolbar, menu, panel)
 - Objects: text, images, buttons
+- **Interactive object dragging** - Click and drag objects to reposition on the slide
 - Simple timeline (start time + duration)
 - Variables management UI (create, edit, delete boolean/number/string variables)
 - Triggers editor UI (add triggers to objects with on click/on timeline start)
@@ -111,10 +112,11 @@ This project will be licensed under MIT or Apache 2.0 (to be determined).
 - ✅ Layer management (Add, Delete, Show/Hide)
 - ✅ Canvas-based visual editing
 - ✅ Object creation and editing (Text, Image, Button)
+- ✅ **Interactive object dragging** with bounds checking and coordinate conversion
 - ✅ Property panels for slide and object configuration
 - ✅ Basic timeline support
 - ✅ Menu system (File, Edit, View, Help)
-- ✅ Comprehensive test suite for desktop components
+- ✅ Comprehensive test suite for desktop components (282+ tests including 24 dragging tests)
 
 **Phase 3 Complete ✅** - Triggers & Variables System UI is fully implemented.
 
@@ -126,7 +128,7 @@ This project will be licensed under MIT or Apache 2.0 (to be determined).
 - ✅ Real-time validation warnings display
 - ✅ Reference validation (variables, slides, layers)
 - ✅ 104+ robust tests covering edge cases, validation, and complex workflows
-- ✅ 354+ total tests (125 Core + 229 Desktop) across 40+ test files
+- ✅ 407+ total tests (125 Core + 282 Desktop) across 40+ test files
 
 **Next:** Phase 4 - HTML/JavaScript Runtime Player
 
