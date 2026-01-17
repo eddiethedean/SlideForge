@@ -251,51 +251,28 @@ jobs:
           # Create PkgInfo file (optional but helps with app identification)
           echo "APPLSLDG" > "$APP_DIR/Contents/PkgInfo"
           
-          # Create a launcher script that removes quarantine on first run
-          cat > "$APP_DIR/Contents/MacOS/Authoring.Desktop" << 'SCRIPTEOF'
-#!/bin/bash
-# Get the directory where this script is located
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-APP_DIR="$( cd "$DIR/../.." && pwd )"
-
-# Automatically remove quarantine attribute if present (Gatekeeper bypass)
-if [ -n "$(xattr -l "$APP_DIR" 2>/dev/null | grep com.apple.quarantine)" ]; then
-  echo "Removing Gatekeeper quarantine..."
-  xattr -dr com.apple.quarantine "$APP_DIR" 2>/dev/null || true
-fi
-
-# Run the actual executable (in same directory)
-exec "$DIR/Authoring.Desktop" "$@"
-SCRIPTEOF
+          # Copy the actual .NET executable to MacOS directory (with .bin suffix)
+          cp "$EXEC_PATH" "$APP_DIR/Contents/MacOS/Authoring.Desktop.bin"
+          chmod +x "$APP_DIR/Contents/MacOS/Authoring.Desktop.bin"
           
-          # Wait, we need to copy the actual executable first, then create wrapper
-          # Let's restructure: copy executable, then create wrapper
-          ACTUAL_EXEC="$APP_DIR/Contents/MacOS/Authoring.Desktop"
-          WRAPPER_SCRIPT="$APP_DIR/Contents/MacOS/SlideForge"
+          # Create wrapper script that automatically removes quarantine on first run
+          # This will be the entry point (CFBundleExecutable)
+          printf '%s\n' \
+            '#!/bin/bash' \
+            '# Get the directory where this script is located' \
+            'DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"' \
+            'APP_DIR="$( cd "$DIR/../.." && pwd )"' \
+            '' \
+            '# Automatically remove quarantine attribute if present (Gatekeeper bypass)' \
+            'if [ -n "$(xattr -l "$APP_DIR" 2>/dev/null | grep com.apple.quarantine)" ]; then' \
+            '  echo "Removing Gatekeeper quarantine..."' \
+            '  xattr -dr com.apple.quarantine "$APP_DIR" 2>/dev/null || true' \
+            'fi' \
+            '' \
+            '# Run the actual executable' \
+            'exec "$DIR/Authoring.Desktop.bin" "$@"' > "$APP_DIR/Contents/MacOS/SlideForge"
           
-          # Copy the actual .NET executable
-          cp "$EXEC_PATH" "$ACTUAL_EXEC"
-          chmod +x "$ACTUAL_EXEC"
-          
-          # Create wrapper script that runs the actual executable
-          # This wrapper automatically removes quarantine on first run
-          cat > "$WRAPPER_SCRIPT" << 'WRAPPEREOF'
-#!/bin/bash
-# Get the directory where this script is located
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-APP_DIR="$( cd "$DIR/../.." && pwd )"
-
-# Automatically remove quarantine attribute if present (Gatekeeper bypass)
-if [ -n "$(xattr -l "$APP_DIR" 2>/dev/null | grep com.apple.quarantine)" ]; then
-  echo "Removing Gatekeeper quarantine..."
-  xattr -dr com.apple.quarantine "$APP_DIR" 2>/dev/null || true
-fi
-
-# Run the actual executable
-exec "$DIR/Authoring.Desktop" "$@"
-WRAPPEREOF
-          
-          chmod +x "$WRAPPER_SCRIPT"
+          chmod +x "$APP_DIR/Contents/MacOS/SlideForge"
           
           # Archive the .app bundle
           ARCHIVE_NAME="SlideForge-macos-$ARCH-v${{ env.VERSION }}.zip"
